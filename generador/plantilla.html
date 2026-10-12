@@ -568,9 +568,17 @@ function applyTheme() {
   else root.setAttribute('data-theme', t);
   syncBarColor();
 }
+// Color de la barra de estado del iPhone: sigue al sistema, o al tema elegido en Ajustes.
 function syncBarColor() {
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
+  const metas = document.querySelectorAll('meta[name="theme-color"]');
+  if (!metas.length) return;
+  const forced = store.settings.theme !== 'auto';
+  const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
+  metas.forEach((m) => {
+    const media = m.getAttribute('media') || '';
+    const own = media.includes('dark') ? '#0C0F17' : '#EDEFF5';
+    m.setAttribute('content', forced ? bg : own);
+  });
 }
 try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncBarColor); } catch (e) { /* navegador antiguo */ }
 

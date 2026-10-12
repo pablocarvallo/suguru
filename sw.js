@@ -1,6 +1,6 @@
 // Permite jugar sin conexión. La página se busca primero en la red (para recibir
 // actualizaciones) y, si no hay conexión, se usa la copia guardada.
-const CACHE = 'suguru-v1';
+const CACHE = 'suguru-v2';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/favicon-32.png'];
 
 self.addEventListener('install', (event) => {
