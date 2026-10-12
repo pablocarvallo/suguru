@@ -1,10 +1,15 @@
-// Permite jugar sin conexión. La página se busca primero en la red (para recibir
-// actualizaciones) y, si no hay conexión, se usa la copia guardada.
-const CACHE = 'suguru-v2';
-const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/favicon-32.png'];
+// Permite jugar sin conexión. Con conexión, siempre se pide la versión más reciente
+// (página, icono y manifest); la copia guardada solo se usa cuando no hay red.
+const CACHE = 'suguru-v3';
+const SCOPE = new URL('./', self.location).href;
+const CORE = ['./', 'manifest.webmanifest', 'icons/suguru-claro-180.png', 'icons/suguru-claro-192.png', 'icons/suguru-claro-512.png', 'icons/favicon-claro-32.png'];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches.open(CACHE)
+      .then((c) => c.addAll(CORE.map((u) => new Request(u, { cache: 'reload' }))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (event) => {
@@ -27,15 +32,16 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // Página principal: red primero, copia guardada si no hay conexión.
+  // Página: red primero (sin usar la caché del navegador); copia guardada si no hay conexión.
   if (req.mode === 'navigate') {
     event.respondWith(
-      withTimeout(fetch(req), 3500)
+      withTimeout(fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }), 4000)
         .then((res) => {
-          if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put('index.html', copy)); }
+          if (res.redirected) return fetch(req);
+          if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(SCOPE, copy)); }
           return res;
         })
-        .catch(() => caches.match('index.html').then((r) => r || caches.match('./')))
+        .catch(() => caches.match(SCOPE).then((r) => r || fetch(req)))
     );
     return;
   }
@@ -52,16 +58,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Resto de archivos propios: copia guardada al instante y actualización en segundo plano.
+  // Archivos propios (icono, manifest): red primero, copia guardada si no hay conexión.
   if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(req, { ignoreSearch: true }).then((hit) => {
-        const net = fetch(req).then((res) => {
+      fetch(req, { cache: 'no-cache' })
+        .then((res) => {
           if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
           return res;
-        }).catch(() => hit);
-        return hit || net;
-      })
+        })
+        .catch(() => caches.match(req).then((hit) => hit || caches.match(req, { ignoreSearch: true })))
     );
   }
 });

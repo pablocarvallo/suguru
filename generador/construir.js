@@ -27,9 +27,9 @@ const out = `<!doctype html>
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#EDEFF5">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0C0F17">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icons/icon-180.png?v=2">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=2">
+<link rel="manifest" href="manifest.webmanifest?v=3">
+<link rel="apple-touch-icon" href="icons/suguru-claro-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-claro-32.png">
 <style>
 :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 body { margin: 0; font: 14px system-ui, -apple-system, sans-serif; }
@@ -42,7 +42,7 @@ ${head}
 ${body}
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {}); });
 }
 </script>
 </body>
