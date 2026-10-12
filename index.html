@@ -1,0 +1,1252 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="description" content="Juego de lógica Suguru: 500 niveles en cinco dificultades, con notas, pistas y modo nocturno.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Suguru">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#EDEFF5">
+<script>try { if (matchMedia('(prefers-color-scheme: dark)').matches) document.querySelector('meta[name="theme-color"]').content = '#0C0F17'; } catch (e) {}</script>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; font: 14px system-ui, -apple-system, sans-serif; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>Suguru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700;800&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout: una sola pantalla tipo app de iPhone; tres vistas apiladas (Inicio, Niveles, Juego) con navegación lateral, hojas que suben desde abajo.
+   Color: de día tinta añil sobre papel frío; de noche luz de farol ámbar sobre índigo profundo. Los bloques llevan tintes suaves. */
+:root {
+  --bg: #EDEFF5;
+  --surface: #FFFFFF;
+  --surface-2: #E2E5EE;
+  --fg: #171A28;
+  --muted: #636A80;
+  --line: rgba(23, 26, 40, .13);
+  --line-strong: #20243A;
+  --accent: #3445B2;
+  --accent-ink: #2C3BA4;
+  --accent-soft: rgba(52, 69, 178, .13);
+  --on-accent: #FFFFFF;
+  --bad: #C0392B;
+  --bad-soft: rgba(192, 57, 43, .16);
+  --sel: rgba(52, 69, 178, .27);
+  --zone: rgba(23, 26, 40, .065);
+  --same: rgba(52, 69, 178, .14);
+  --scrim: rgba(14, 16, 28, .34);
+  --key-shadow: 0 1px 0 rgba(20, 24, 40, .07), 0 1px 3px rgba(20, 24, 40, .09);
+  --card-shadow: 0 1px 2px rgba(20, 24, 40, .05), 0 10px 30px rgba(20, 24, 40, .09);
+  --t0: #F6DFE3; --t1: #DCEDE1; --t2: #D9E5F6; --t3: #F6EAC8; --t4: #E6DFF4; --t5: #ECE2D6;
+  --font-display: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+  --font-num: "Zen Maru Gothic", ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C0F17; --surface: #161A25; --surface-2: #1F2431; --fg: #EDE8DE; --muted: #9399AB;
+    --line: rgba(237, 232, 222, .11); --line-strong: #CFC8B8;
+    --accent: #F0B35C; --accent-ink: #F4BD6C; --accent-soft: rgba(240, 179, 92, .15); --on-accent: #1B1408;
+    --bad: #FF7D6E; --bad-soft: rgba(255, 125, 110, .17);
+    --sel: rgba(240, 179, 92, .30); --zone: rgba(237, 232, 222, .055); --same: rgba(240, 179, 92, .13);
+    --scrim: rgba(0, 0, 0, .58);
+    --key-shadow: inset 0 0 0 1px rgba(237, 232, 222, .06);
+    --card-shadow: inset 0 0 0 1px rgba(237, 232, 222, .06);
+    --t0: #351F2F; --t1: #16302A; --t2: #172A44; --t3: #352A17; --t4: #29214A; --t5: #2D241F;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C0F17; --surface: #161A25; --surface-2: #1F2431; --fg: #EDE8DE; --muted: #9399AB;
+  --line: rgba(237, 232, 222, .11); --line-strong: #CFC8B8;
+  --accent: #F0B35C; --accent-ink: #F4BD6C; --accent-soft: rgba(240, 179, 92, .15); --on-accent: #1B1408;
+  --bad: #FF7D6E; --bad-soft: rgba(255, 125, 110, .17);
+  --sel: rgba(240, 179, 92, .30); --zone: rgba(237, 232, 222, .055); --same: rgba(240, 179, 92, .13);
+  --scrim: rgba(0, 0, 0, .58);
+  --key-shadow: inset 0 0 0 1px rgba(237, 232, 222, .06);
+  --card-shadow: inset 0 0 0 1px rgba(237, 232, 222, .06);
+  --t0: #351F2F; --t1: #16302A; --t2: #172A44; --t3: #352A17; --t4: #29214A; --t5: #2D241F;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 15px;
+  overflow: hidden; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; touch-action: manipulation; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+.app { position: relative; height: 100%; max-width: 560px; margin: 0 auto; overflow: hidden; }
+.view {
+  position: absolute; inset: 0; display: flex; flex-direction: column; padding-inline: 16px; background: var(--bg);
+  transition: transform .34s cubic-bezier(.2, .8, .2, 1), opacity .34s, visibility 0s .34s;
+  visibility: hidden; opacity: 0; transform: translateX(100%);
+}
+.view.left { transform: translateX(-22%); }
+.view.on { visibility: visible; opacity: 1; transform: none; transition: transform .34s cubic-bezier(.2, .8, .2, 1), opacity .34s, visibility 0s; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; margin-inline: -16px; padding-inline: 16px; padding-bottom: 28px; }
+
+/* Barra de navegación */
+.nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 50px; gap: 8px; }
+.back { display: inline-flex; align-items: center; gap: 2px; color: var(--accent); font-size: 17px; justify-self: start; padding: 8px 6px 8px 0; margin-left: -6px; }
+.back svg.i { width: 24px; height: 24px; stroke-width: 2.2; }
+.nav-title { text-align: center; line-height: 1.15; }
+.nav-title b { display: block; font-size: 17px; font-weight: 600; }
+.nav-title span { font-size: 12px; color: var(--muted); }
+.nav-right { justify-self: end; display: flex; align-items: center; gap: 6px; }
+.icon-btn { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; color: var(--accent); }
+.icon-btn:active { background: var(--accent-soft); }
+
+/* Inicio */
+.hero { display: flex; align-items: flex-start; justify-content: space-between; padding-top: 22px; }
+.brand h1 { font-family: var(--font-display); font-weight: 800; font-size: 46px; line-height: 1; margin: 0; letter-spacing: .005em; }
+.brand .kana { display: block; margin-top: 8px; font-family: var(--font-display); font-weight: 700; color: var(--accent); font-size: 14px; letter-spacing: .42em; }
+.hero .icon-btn { margin-top: 2px; margin-right: -8px; }
+.lede { color: var(--muted); font-size: 15px; line-height: 1.45; max-width: 36ch; margin: 14px 0 22px; text-wrap: pretty; }
+.resume {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; width: 100%; text-align: left;
+  background: var(--surface); border-radius: 20px; padding: 14px; box-shadow: var(--card-shadow);
+}
+.resume:active { transform: scale(.99); }
+.resume .eyebrow { margin: 0 0 4px; color: var(--accent-ink); }
+.resume b { display: block; font-size: 17px; font-weight: 600; }
+.resume .meta { font-size: 13px; color: var(--muted); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.resume > svg.i { color: var(--muted); }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 28px 4px 10px; }
+.group { background: var(--surface); border-radius: 18px; overflow: hidden; box-shadow: var(--card-shadow); }
+.diff {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 13px 14px 13px 16px; position: relative;
+}
+.diff + .diff::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--line); }
+.diff:active { background: var(--zone); }
+.diff b { font-size: 17px; font-weight: 600; display: block; }
+.diff .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.diff .side { text-align: right; }
+.dots { display: inline-flex; gap: 3px; }
+.dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--line); display: block; }
+.dots i.f { background: var(--accent); }
+.diff .count { display: block; font-size: 13px; color: var(--muted); margin-top: 5px; font-variant-numeric: tabular-nums; }
+.diff > svg.i { color: var(--muted); width: 18px; height: 18px; }
+.foot-links { display: flex; gap: 10px; margin-top: 18px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: var(--surface); box-shadow: var(--card-shadow); font-size: 15px; font-weight: 500; }
+.chip svg.i { color: var(--accent); width: 20px; height: 20px; }
+
+/* Niveles */
+.lv-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0 14px; }
+.lv-head .stat { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.lv-head .stat b { display: block; font-size: 22px; color: var(--fg); font-family: var(--font-num); font-weight: 700; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 18px; border-radius: 14px;
+  background: var(--accent); color: var(--on-accent); font-size: 16px; font-weight: 600;
+}
+.btn:active { filter: brightness(.94); }
+.btn.ghost { background: var(--surface-2); color: var(--fg); }
+.btn.danger { background: var(--bad); color: #fff; }
+.btn.block { width: 100%; }
+.lv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.tile {
+  position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 14px; background: var(--surface); box-shadow: var(--key-shadow);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+}
+.tile .num { font-family: var(--font-num); font-weight: 700; font-size: 19px; font-variant-numeric: tabular-nums; }
+.tile .tm { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tile.done { background: var(--accent-soft); box-shadow: none; }
+.tile.done .num { color: var(--accent-ink); }
+.tile.done .ok { position: absolute; top: 5px; right: 5px; width: 13px; height: 13px; color: var(--accent-ink); stroke-width: 2.6; }
+.tile.started::after { content: ""; position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.tile.next { box-shadow: inset 0 0 0 2px var(--accent); }
+.tile:active { transform: scale(.96); }
+
+/* Tablero */
+.game-top { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.timer { font-family: var(--font-num); font-weight: 500; font-size: 16px; font-variant-numeric: tabular-nums; color: var(--muted); min-width: 46px; text-align: right; }
+.board-wrap { flex: 1; min-height: 0; display: grid; place-items: center; container-type: size; }
+.board {
+  --size: min(100cqw, 100cqh, 520px); --bw: 2.5px;
+  --cell: calc((var(--size) - 2 * var(--bw)) / var(--n));
+  position: relative; width: var(--size); height: var(--size); max-width: 100%;
+  border: var(--bw) solid var(--line-strong); border-radius: 10px; overflow: hidden; background: var(--surface);
+}
+.board.mini { --size: 76px; --bw: 1.5px; border-radius: 7px; }
+.cells { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(var(--n), 1fr); grid-template-rows: repeat(var(--n), 1fr); }
+.cell { position: relative; background: var(--tint); display: grid; place-items: center; touch-action: manipulation; }
+.board.plain .cell { background: var(--surface); }
+.cell::before { content: ""; position: absolute; inset: 0; background: transparent; transition: background-color .12s; }
+.cell.zone::before { background: var(--zone); }
+.cell.same::before { background: var(--same); }
+.cell.h-area::before { background: var(--accent-soft); }
+.cell.sel::before { background: var(--sel); }
+.cell.wrong::before { background: var(--bad-soft); }
+.cell.h-target { box-shadow: inset 0 0 0 2.5px var(--accent); z-index: 1; }
+.cell.h-target.h-bad { box-shadow: inset 0 0 0 2.5px var(--bad); }
+.cell .v { position: relative; font-family: var(--font-num); font-weight: 500; font-size: calc(var(--cell) * .58); line-height: 1; color: var(--accent-ink); }
+.cell.given .v { color: var(--fg); font-weight: 700; }
+.cell.conflict .v, .cell.wrong .v { color: var(--bad); }
+.cell .nt {
+  position: absolute; inset: 7% 8%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);
+  font-family: var(--font-num); font-weight: 500; font-size: calc(var(--cell) * .25); line-height: 1; color: var(--muted); place-items: center;
+}
+.board.mini .cell .v { font-size: calc(var(--cell) * .62); }
+.board.mini .nt { display: none; }
+.grid-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.grid-lines .thin { stroke: var(--line); }
+.grid-lines .thick { stroke: var(--line-strong); }
+.veil {
+  position: absolute; inset: 0; z-index: 5; background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+}
+.veil p { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 26px; }
+.board.won .cell .v { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) both; animation-delay: calc(var(--d) * 38ms); }
+.board.won .cell::before { animation: glow .9s ease-out both; animation-delay: calc(var(--d) * 38ms); }
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.28); } 100% { transform: scale(1); } }
+@keyframes glow { 0% { background: transparent; } 35% { background: var(--sel); } 100% { background: transparent; } }
+.cell.shake .v { animation: shake .35s; }
+@keyframes shake { 20%, 60% { transform: translateX(-3px); } 40%, 80% { transform: translateX(3px); } }
+
+.cell-info { text-align: center; font-size: 13px; color: var(--muted); margin: 10px 0 0; min-height: 18px; font-variant-numeric: tabular-nums; }
+.cell-info b { color: var(--fg); font-weight: 600; }
+/* Herramientas y teclado */
+.tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+.tool { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 7px 0 6px; border-radius: 14px; font-size: 12px; font-weight: 500; color: var(--fg); }
+.tool svg.i { width: 24px; height: 24px; }
+.tool:active { background: var(--zone); }
+.tool .state { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tool.on { color: var(--accent-ink); }
+.tool.on .state { color: var(--accent-ink); }
+.tool:disabled { opacity: .35; }
+.pad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 6px; padding-bottom: 14px; }
+.key {
+  position: relative; height: clamp(50px, 8.2vh, 66px); border-radius: 15px; background: var(--surface); box-shadow: var(--key-shadow);
+  font-family: var(--font-num); font-weight: 500; font-size: 30px; color: var(--fg); transition: transform .08s;
+}
+.key:active { transform: scale(.94); background: var(--surface-2); }
+.key small { position: absolute; top: 5px; right: 8px; font-family: var(--font-ui); font-size: 11px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+.key.spent { color: var(--muted); }
+.key:disabled { opacity: .28; }
+.pad.notes .key { background: var(--accent-soft); color: var(--accent-ink); font-size: 23px; box-shadow: none; }
+
+.toast {
+  position: absolute; left: 50%; top: 58px; transform: translate(-50%, -8px); z-index: 8; max-width: calc(100% - 32px);
+  background: var(--fg); color: var(--bg); padding: 9px 16px; border-radius: 999px; font-size: 14px; font-weight: 500; text-align: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.hint-card {
+  position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 9; background: var(--surface); border-radius: 20px; padding: 14px 16px 14px;
+  box-shadow: 0 -2px 30px rgba(10, 12, 24, .22), var(--card-shadow);
+  transform: translateY(calc(100% + 30px)); transition: transform .28s cubic-bezier(.2, .8, .2, 1); visibility: hidden;
+}
+.hint-card.show { transform: none; visibility: visible; }
+.hint-card .h-title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: var(--accent-ink); }
+.hint-card p { margin: 8px 0 12px; font-size: 15px; line-height: 1.42; text-wrap: pretty; }
+.hint-card .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* Hojas */
+.sheet { position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; justify-content: center; visibility: hidden; pointer-events: none; transition: visibility 0s .3s; }
+.sheet.open { visibility: visible; pointer-events: auto; transition: visibility 0s; }
+.scrim { position: absolute; inset: 0; background: var(--scrim); opacity: 0; transition: opacity .28s; }
+.sheet.open .scrim { opacity: 1; }
+.panel {
+  position: relative; width: 100%; max-width: 560px; max-height: 90%; overflow-y: auto; background: var(--bg);
+  border-radius: 24px 24px 0 0; padding: 8px 20px calc(22px + env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%); transition: transform .32s cubic-bezier(.2, .8, .2, 1);
+}
+.sheet.open .panel { transform: none; }
+.grabber { width: 38px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 10px; }
+.panel h2 { font-family: var(--font-display); font-weight: 800; font-size: 28px; margin: 6px 0 4px; text-wrap: balance; }
+.panel .close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--surface-2); color: var(--muted); display: grid; place-items: center; }
+.panel .close svg.i { width: 16px; height: 16px; stroke-width: 2.4; }
+.set-list { background: var(--surface); border-radius: 16px; overflow: hidden; box-shadow: var(--card-shadow); }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px 12px 16px; position: relative; }
+.set-row + .set-row::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--line); }
+.set-row label { flex: 1; min-width: 0; font-size: 16px; }
+.set-row label small { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+.switch { appearance: none; -webkit-appearance: none; width: 51px; height: 31px; border-radius: 999px; background: var(--surface-2); position: relative; flex: none; cursor: pointer; transition: background .2s; margin: 0; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 5px rgba(0, 0, 0, .22); transition: transform .2s; }
+.switch:checked { background: var(--accent); }
+.switch:checked::after { transform: translateX(20px); }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface-2); border-radius: 11px; padding: 2px; gap: 2px; }
+.seg button { padding: 8px 4px; border-radius: 9px; font-size: 14px; font-weight: 500; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+.note { font-size: 13px; color: var(--muted); margin: 8px 4px 0; line-height: 1.4; }
+.danger-zone { margin-top: 20px; display: grid; gap: 10px; }
+.confirm { background: var(--surface); border-radius: 16px; padding: 14px; box-shadow: var(--card-shadow); }
+.confirm p { margin: 0 0 12px; font-size: 15px; line-height: 1.4; }
+.confirm .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.rules { display: grid; gap: 16px; margin-top: 12px; }
+.rules .demo { display: flex; justify-content: center; padding: 6px 0 2px; }
+.rules .demo .board { --size: 200px; }
+.rule { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; font-size: 15px; line-height: 1.45; }
+.rule .mk { width: 30px; height: 30px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-ink); display: grid; place-items: center; font-family: var(--font-num); font-weight: 700; font-size: 15px; }
+.rule .mk svg.i { width: 18px; height: 18px; }
+.rule p { margin: 4px 0 0; }
+.rules h3 { font-size: 12px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 8px 0 0; }
+
+.win { text-align: center; padding-top: 4px; }
+.win .seal { width: 64px; height: 64px; margin: 6px auto 6px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); display: grid; place-items: center; }
+.win .seal svg.i { width: 32px; height: 32px; stroke-width: 2.4; }
+.win h2 { margin: 6px 0 2px; font-size: 32px; }
+.win .where { color: var(--muted); font-size: 15px; margin: 0; }
+.win-stats { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface); border-radius: 16px; margin: 18px 0; box-shadow: var(--card-shadow); }
+.win-stats div { padding: 12px 6px; position: relative; }
+.win-stats div + div::before { content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 1px; background: var(--line); }
+.win-stats b { display: block; font-family: var(--font-num); font-weight: 700; font-size: 22px; font-variant-numeric: tabular-nums; }
+.win-stats span { font-size: 12px; color: var(--muted); }
+.win .badge { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 600; color: var(--accent-ink); background: var(--accent-soft); padding: 4px 10px; border-radius: 999px; }
+.win .row { display: grid; gap: 10px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-delay: 0ms !important; }
+}
+@media (max-height: 620px) {
+  .key { height: 48px; font-size: 26px; }
+  .tool { padding: 4px 0 3px; }
+  .nav { min-height: 44px; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <!-- Inicio -->
+  <section class="view on" id="v-home" aria-label="Inicio">
+    <div class="scroll">
+      <header class="hero">
+        <div class="brand">
+          <h1>Suguru</h1>
+          <span class="kana" lang="ja">スグル</span>
+        </div>
+        <button class="icon-btn" id="btn-settings" aria-label="Ajustes">
+          <svg class="i" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg>
+        </button>
+      </header>
+      <p class="lede">Cada bloque lleva los números del 1 a su tamaño. Dos números iguales nunca se tocan, ni siquiera en diagonal.</p>
+      <button class="resume" id="resume">
+        <div class="board mini" id="resume-board"></div>
+        <div>
+          <p class="eyebrow" id="resume-eyebrow">Continuar</p>
+          <b id="resume-title">Principiante · Nivel 1</b>
+          <div class="meta" id="resume-meta">5×5</div>
+        </div>
+        <svg class="i" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+      <h2 class="eyebrow">Dificultad</h2>
+      <div class="group" id="diffs"></div>
+      <div class="foot-links">
+        <button class="chip" id="btn-rules">
+          <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.6"/><path d="M12 16.9h.01"/></svg>
+          Cómo jugar
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Niveles -->
+  <section class="view" id="v-levels" aria-label="Niveles">
+    <nav class="nav">
+      <button class="back" data-go="home"><svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Inicio</button>
+      <div class="nav-title"><b id="lv-title">Medio</b><span id="lv-sub">7×7</span></div>
+      <span></span>
+    </nav>
+    <div class="scroll">
+      <div class="lv-head">
+        <div class="stat"><b id="lv-done">0 / 100</b>niveles resueltos</div>
+        <button class="btn" id="lv-next">Jugar nivel 1</button>
+      </div>
+      <div class="lv-grid" id="lv-grid"></div>
+    </div>
+  </section>
+
+  <!-- Juego -->
+  <section class="view" id="v-game" aria-label="Juego">
+    <nav class="nav">
+      <button class="back" id="g-back"><svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Niveles</button>
+      <div class="nav-title"><b id="g-title">Nivel 1</b><span id="g-sub">Principiante · 5×5</span></div>
+      <div class="nav-right">
+        <span class="timer" id="timer" aria-label="Tiempo">00:00</span>
+        <button class="icon-btn" id="btn-pause" aria-label="Pausa">
+          <svg class="i" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12" stroke-width="2.6"/></svg>
+        </button>
+      </div>
+    </nav>
+    <div class="board-wrap">
+      <div class="board" id="board" role="grid" aria-label="Tablero"></div>
+    </div>
+    <p class="cell-info" id="cell-info" aria-live="polite"></p>
+    <div class="tools">
+      <button class="tool" id="t-undo">
+        <svg class="i" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>Deshacer
+      </button>
+      <button class="tool" id="t-erase">
+        <svg class="i" viewBox="0 0 24 24"><path d="M20 20H9.5L4.6 15.1a2 2 0 0 1 0-2.8l8.1-8.1a2 2 0 0 1 2.8 0l4 4a2 2 0 0 1 0 2.8L11 19.5"/><path d="M8.5 9l7 7"/></svg>Borrar
+      </button>
+      <button class="tool" id="t-notes" aria-pressed="false">
+        <svg class="i" viewBox="0 0 24 24"><path d="M4 20h4L19.2 8.8a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>
+        <span>Notas <span class="state" id="notes-state">No</span></span>
+      </button>
+      <button class="tool" id="t-hint">
+        <svg class="i" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3z"/></svg>Pista
+      </button>
+    </div>
+    <div class="pad" id="pad"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="hint-card" id="hint" role="dialog" aria-label="Pista">
+      <div class="h-title"><svg class="i" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3z"/></svg><span id="hint-title">Pista</span></div>
+      <p id="hint-text"></p>
+      <div class="row">
+        <button class="btn ghost" id="hint-close">Entendido</button>
+        <button class="btn" id="hint-act">Colocar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hoja: ajustes -->
+  <div class="sheet" id="s-settings" aria-hidden="true">
+    <div class="scrim" data-close></div>
+    <div class="panel" role="dialog" aria-label="Ajustes">
+      <div class="grabber"></div>
+      <button class="close" data-close aria-label="Cerrar"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <h2>Ajustes</h2>
+      <p class="eyebrow" style="margin-top:18px">Apariencia</p>
+      <div class="seg" id="seg-theme" role="group" aria-label="Apariencia">
+        <button data-theme-opt="auto" aria-pressed="true">Automática</button>
+        <button data-theme-opt="light" aria-pressed="false">Clara</button>
+        <button data-theme-opt="dark" aria-pressed="false">Oscura</button>
+      </div>
+      <p class="note">Automática sigue el modo claro u oscuro del iPhone, incluso si lo tienes programado para cambiar al anochecer.</p>
+      <p class="eyebrow">Juego</p>
+      <div class="set-list">
+        <div class="set-row"><label for="o-conflicts">Marcar choques<small>En rojo los números iguales que se tocan o se repiten en un bloque.</small></label><input type="checkbox" class="switch" id="o-conflicts"></div>
+        <div class="set-row"><label for="o-instant">Revisar al instante<small>Marca en rojo cualquier número que no sea el de la solución.</small></label><input type="checkbox" class="switch" id="o-instant"></div>
+        <div class="set-row"><label for="o-autonotes">Limpiar notas<small>Al poner un número, lo quita de las notas de su bloque y de las casillas vecinas.</small></label><input type="checkbox" class="switch" id="o-autonotes"></div>
+        <div class="set-row"><label for="o-zone">Resaltar vecindad<small>Sombrea el bloque y las ocho casillas que rodean a la elegida.</small></label><input type="checkbox" class="switch" id="o-zone"></div>
+        <div class="set-row"><label for="o-colors">Colores en los bloques</label><input type="checkbox" class="switch" id="o-colors"></div>
+      </div>
+      <div class="danger-zone">
+        <button class="btn ghost block" id="reset-ask">Borrar progreso</button>
+        <div class="confirm" id="reset-confirm" hidden>
+          <p>Se borrarán los niveles resueltos, los mejores tiempos y las partidas a medias. No se puede deshacer.</p>
+          <div class="row"><button class="btn ghost" id="reset-no">Cancelar</button><button class="btn danger" id="reset-yes">Borrar todo</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hoja: cómo jugar -->
+  <div class="sheet" id="s-rules" aria-hidden="true">
+    <div class="scrim" data-close></div>
+    <div class="panel" role="dialog" aria-label="Cómo jugar">
+      <div class="grabber"></div>
+      <button class="close" data-close aria-label="Cerrar"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <h2>Cómo jugar</h2>
+      <div class="rules">
+        <div class="demo"><div class="board" id="demo-board"></div></div>
+        <div class="rule"><span class="mk">1</span><p>El tablero está dividido en bloques de 1 a 5 casillas, separados por líneas gruesas.</p></div>
+        <div class="rule"><span class="mk">2</span><p>Un bloque de 3 casillas lleva el 1, el 2 y el 3; uno de 5 casillas, del 1 al 5. Ningún número se repite dentro de un bloque.</p></div>
+        <div class="rule"><span class="mk">3</span><p>Dos casillas que se tocan, por un lado o por una esquina, nunca tienen el mismo número.</p></div>
+        <h3>Controles</h3>
+        <div class="rule"><span class="mk"><svg class="i" viewBox="0 0 24 24"><path d="M4 20h4L19.2 8.8a2.8 2.8 0 0 0-4-4L4 16v4z"/></svg></span><p>Con <b>Notas</b> activadas, los números se anotan en pequeño como posibilidades. Tocar un número de nuevo lo quita.</p></div>
+        <div class="rule"><span class="mk"><svg class="i" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3z"/></svg></span><p><b>Pista</b> te indica la siguiente casilla que se puede deducir y por qué. Si hay un número equivocado, te lo señala primero.</p></div>
+        <div class="rule"><span class="mk" style="font-size:11px">1–5</span><p>El número pequeño en cada tecla indica cuántas veces falta ese número en el tablero.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hoja: nivel resuelto -->
+  <div class="sheet" id="s-win" aria-hidden="true">
+    <div class="scrim"></div>
+    <div class="panel" role="dialog" aria-label="Nivel resuelto">
+      <div class="grabber"></div>
+      <div class="win">
+        <div class="seal"><svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <h2>¡Resuelto!</h2>
+        <p class="where" id="win-where">Medio · Nivel 13</p>
+        <span class="badge" id="win-badge" hidden>Nuevo récord</span>
+        <div class="win-stats">
+          <div><b id="win-time">00:00</b><span>Tiempo</span></div>
+          <div><b id="win-best">00:00</b><span>Mejor</span></div>
+          <div><b id="win-hints">0</b><span>Pistas</span></div>
+        </div>
+        <div class="row">
+          <button class="btn block" id="win-next">Siguiente nivel</button>
+          <button class="btn ghost block" id="win-levels">Ver niveles</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+'use strict';
+const BANK = {"principiante":["0011102314023442244525555|..13.3....2...11.2...4132|1413235245241311324524132","0001100222344523345533455|.4...2.14.....24....231.1|1432125143132524543423121","0012200122031123331435544|231.21....4...43...31....|2313215451423243545312121","0012200122033345334455544|.31.12..4....3.35..1.4..2|4313125242141353524124132","0001100211332223324435444|.25..3...1....5..2323..41|1254334321151452423231541","0001100111222334253344553|123..5...221.1..4.4.....3|1231354542213153424221313","0112211122333324445544555|.3..2..2.1.1..4....531.42|1313245251214344521531342","0011200112334443354435555|1......24..3.3.4.4..5..52|1313224241135324241451352","0111203122331243355455544|23....45.2.3....5...3.23.|2314114532232411515234234","0111100233002234522345553|1..3.2...5..1.223...1..2.|1413223245541322354114123","0011100011223334223344555|12..2..4...152...34..2...|1253253414215233434112123","0001123044233442335522555|2..2.....44...251..52.2..|2312115434432125143523214","0011100211022234553345553|..4.121353..2....3..2....|4542121353342121534324121","0001120311223334435544555|3....2.54113.2..2......3.|3123224541131234245413132","0001120011222334443344553|.43....2..2415......24..1|1431235243241521534324121","0000122011222113334453344|1...23.2132.....43.3.....|1534234213215455432312141","0012230122304423044455555|.....2..4.1.5253.....532.|1523223141145253214345321","0112200222033443354455554|2...54..3....5.3.3.1.21..|2121543432121543432152143","0011100211302223445534445|.23.23......3.225..3...4.|1234235151143422521331342","0112200132001324433345555|..14.3.3....2...13..24...|1414135352242133134224213","0001102211322443254435554|3...4..13...2.214.......1|3242415131232421415332341","0011120011234443355633555|315...4.....13..3.4....3.|3153224241151322324114135","0001100111233452334466644|3..1..54.2...3...14...2..|3121345452132312414213251","0000122211324113345533455|.23.3...245......14...2..|4231331424523511414223231","0011101122033425334255342|.3.23...5..13...4.1.....2|1312345451213233451421232","0011230112331223445244555|13......341..522.......1.|1352142434131522424331312","0011200011333145554465544|4.4.1..2..2...4..2...5..1|4143135252213143425215131","0111200132003324435544555|.....3..4.14.31.......153|2431335242141312324214153","0000102331222332445344555|31.......153.45....1...4.|3154224231531452423113142","0001122211324413345534455|3.124...5.........32.3.4.|3212414353321411453223241","0111201132044325543255332|32......252...3..25.....4|3213114525231431425223134","0111201122003324335544355|3.1.1....4.1........2.231|3213145424213133454221231","0001120311233345366455664|.......2..24.31.5....1...|2413113242241313524221313","0112201122033240055466554|....45.45...12..4.43.....|2121453453121213434321212","0011100222334223344453666|.4......4.1.3.2.5.41.3...|1432132143143522524113132","0011200112301223444435555|1...13.35...2..2.......43|1214134352152432431231243","0001233111433154455544665|.13.1..5.....1.2..34.4...|2132134543512122353414121","0012203122333245366455566|2..3......23..145......31|2313114242231514524223131","0111201122003425334455344|2.2..4.4.4.13........3..1|2123245414313532424213131","0011100112344423354235555|.32.4..1...3.......2.1.43|1323424151132432451231243","0001100211332443344535555|..2.25.........4..1.2.325|1323254141132324541421325","0111102213022334555344553|.5.23......12..3.4.31....|1512334341212523541312324","0111200112334423354235544|...2.12....514..4.3.2....|3412412353351421423123152","0001122113221435544355433|...2.....11..35..41..1..4|1232334141125354341221234","0111203412334423344255552|.....1.5435..2..2..5.3...|2321214543531211243543124","0001120111222234455344553|.1421.23......1.4....1...|3142142354351212434331212","0012200122031425334455334|.5.23.....132.....41...5.|3532324141132352414113252","0111203322034520345503455|2...4..53..3......53.23..|2321441532532411415332321","0011100211322223445534445|..352.2.4...3..2.....1.4.|1435232141143522521331342","0011200122011324453355553|.1.3.....154.2...5...4.2.|4123223541541231254134123","0012201132011340533455534|.2.321.4.1..3..........32|4213215451323235414113232","0122301223011230445544455|.2.3..3..1.....3..4.4.12.|4213213541241233534142123","0000123331233412444422555|.13....4.1..13.1.....31..|4132352451431321524123132","0001102311423354225542655|431..25........2...2...3.|4313125242313152424213131","0012203122334553445534666|1...1.....35...1.14.2....|1323124142352311414223231","0011230112341223445534455|....1..2....1.3.4...1.14.|2143143252251433432112143","0011120013224532445524455|........3..4.4115.53..12.|2424153132242411535334121","0122211333411354465546655|15...2.24.3...5........3.|1531224243313152424213131","0111200222034423335536655|...1.1..4.3....15..4.2...|2321214543321211543432121","0012203122031124335544355|.323445.......1...2....4.|2323445152123413412312341","0001100221322213334153444|.3.3145..4....2.......43.|1323145154124324351512432","0012201122011324433344555|4..3....54243.......2...2|4313115254243123124324312","0011100012332223332455544|...31...4.1.31.....212...|2123134542123153454212313","0012203122333445344655566|..2.2......3...25.4.....3|1323224141132322514114323","0001120311223314455544455|...5.......1..2.424...531|2135134243213123424521531","0011200122032243354433554|3.2.4.........3.4.4.2.2.2|3523414151253231414123232","0011203122333423564455544|131....2.1....3....2.....|1313224241153532414213231","0112201122033324433544555|...2.141........41.32..4.|3232414153232411415323241","0001120311223334255344555|1..4........24334.....12.|1234334512212433435112124","0000102211223114433544355|4.2.4..4...1...3...1.21..|4123453412212533434112123","0001102211223334256644566|341..252.1...............|3413225241131322424113132","0000122011324413354435554|5..2....3...5.2...43.4.1.|5312112434435122124334312","0000120331233312445144555|...3....5.3....121.3.....|1423225154343211214334321","0011100213022334445544555|.....5.34.....3...42.41.3|2121354342312132534214153","0012200112311443334455554|.......1..35251.1......12|3232114143352512143443212","0111200122331223334455544|.54.3..35....2..4.4....1.|1542332354151212434331212","0001120311223145334455344|.2.......31.141...52....3|1231534523121413435221243","0001230112301223314255444|.2.5.1..24....1..3..2..1.|4215313424251513434221213","0000102211322143351435544|3.2...4.....2..3.3.3.2.4.|3124254313212423435312141","0011203122331224335544455|.2..31.......4145..21....|3234314152232414513213241","0111100221022234455344555|1...52.2.....3...45....13|1413523242451312345241213","0000102221223334443344566|2135..5.4......2..5....2.|2135245241131322545413121","0011203312033224435244555|...324.41.31...2..4......|2123245414313532424113132","0112201123044234452355553|3.....4.5..3.4..2...31...|3131224253131424253131424","0000011122312223345534455|...52.2..........2...1342|1345242131135422421331342","0011120013224432244355543|21.4.3.............1.323.|2124334312152432415113234","0011102314033340355455544|2...2........12....553.3.|2341241234535121424553131","0012200122011334453345553|3.....5.1...4...32.1....2|3134325212414342325114132","0001100221322413444134555|4..2..5...23......5.3...1|4232315145232311415432321","0001100111223442234455334|24.4..3.......4...53.12..|2414253531121243435321241","0001100111233342334425544|5.1..34.3.2.....5....2.2.|5214134532212413535312124","0011100233222334425344555|4...2....4.5..314..13....|4213213454251231434132123","0112200112304153445534455|.....3.3......334.52...14|1212334351121433435225214","0011100222333243355466655|1...2...4.......414...2..|1313224241135322414113232","0112201123013334445345555|.....15...23....42.33.3..|3212115434231521424335312","0112200322403324553645566|.2..3...5.1.....4...2...2|1212334354121213434321212","0112201122001234444355553|1.4.335...24..3.........2|1241335324241531324124132","0001100211222334445344555|.21.1..4..3..21.........1|3212145434321211454332321","0011101122333224335544455|...15..2.2...1.3.4..4....|2131534242213133542442131","0112200032045324443346663|..1.21..512..2..4..1.....|3213215451231241453123124"],"facil":["000011223011223314533644556667556777|3.14..2....4.....1.2....3...544..2..|351412243234315151524232313154424231","011222011322003344503446557666557776|3..1.3....4.2.4...4.....5.....3...2.|324153413242254131413242524531313124","001112001122033442533346555766777766|.51.4.........3...35........13.52...|151343342521213134352425241313152424","001122034122334425334455666675677775|..2...1..3.3.2......5..2.4...4....5.|232121154353421241135352541214323453","000011230111233444335544665557666777|1.4..1....4..5.....4...435.1...2...3|154321232543151315242424353151124243","001122001122344155346555346677346777|31..2.42.4..........4..31.12.......2|313121425434313212424543151215243432","001222001223401133444453666755667777|323..1.........1..1.3........3.4...2|323231414542252131143524352413141352","000111002211332445336445376645776655|5....4....2..1.4.3.5...4........3..5|513534242121313453252124414531323125","000111220311223333244555664455677777|.3154.45...33.1..............5.5....|231542454313321254143412321235153412","011233011233002223405556447566447766|4........2.53.4...1.1....5...2..2..1|434313121245354512121234353452242131","000122001122331452334455637445667775|...45.3.1....2...........4.5.5.12..4|125453341212123434351212243535312414","001122001122333455334445667745667775|2.2......121.5...5..1....3.3.1......|232343414121352345141523232341414152","011122003122333344556444556777566677|...321.3...........31.2.1...14...2..|142321235143142351531423125314434252","011222001122033144533446557766557766|.5..34.3......1...4......2...21...1.|251534434212121343434215521342134213","001233001233011243551226557766577766|23..3....2.4........1...15...5.4....|234131415254523412341534153215241532","001122001122341566344566347568347588|.1.....25......1....4....3.3.1......|314131425242313131424242131351252423","000112003112433322443552465577666777|.24.3..1...1.54...1...2......1......|524132313241454153132324241451132324","001122001122334555334455667778667788|.1....3.....1..51.2...2..4.5.......3|414141323232141514232323141541232323","011233111223445266445266775886755888|...2...34.41........5........4..141.|121232534541212323345151123234341415","011122001322403325445555446777666677|2...4.4.....51...14.......2..4.5....|212341434123512351435423212354354121","001111022334222334566634577668777888|1.2............4..2...12.....3.4....|132143245321132453241312135253241412","000011220331244331244355664555666777|5..2.3..1.5.3..2.......2....5..43..2|534243121352354241413132252451143132","001122311422334455364555664788667788|...2...4...4....2...3..4.2.....31...|121212343534212121453534124212431343","000011022111322444355446355776337776|4.5.2...3.......215...........4....2|425121313435242521531343124251431342","001122001122034455334455633477666777|1....1.521.....5.........5..2.43.1..|134321252143414521232143154325432143","012233012233044235004455664755666777|.....1..415...2..3......3.....15.21.|325231514154232323145414321352154214","001122031122033144553344566674566777|.2....1....33...5..2..1.4..3........|423542151213343454121213454342321213","001122011322441325443335666755667777|....2......3....1.2..3...3...41...5.|132324241453135212241353532414141352","001112001122304566374466374886374888|.1....4....1....5..13........2...31.|212153434321252154313431425252131314","000111201133222443552443555673666677|...4.5..3..1.1......41.........2...3|312425243131315242424135153524321413","011122001222344445366745366775336775|......1...2..2....4...4.25..51......|242313131425525313414242253151312434","011122011222334455344555346677886677|..3.4...1......3.42.....3.......31..|143242251513142324251513342424213131","001122001112334442334455666557667777|.....4.41........32.....5..1......24|132314241452132313245424512131343524","011122000122330444335544365577666777|.....33...4.5.1.......1.34...3......|414213325342541253123414341253123412","000122333112345116445666445776885777|2....1...5.3..3.2.........4........5|231321142543353121212543434312121245","011122001223003333444556447556777566|.4....2.3.1......4..3.......532...1.|141232253415341234123412451253234314","000011222211332445334445637788667778|.41.....2.2.......3..5..2....1..52..|241313132524254131312542243131315242","012233002233044255064455664788667778|..2.......4......1452..........1.1..|312121254543131321452543234321412143","000111001122333422344425664755667775|..2.3.5.1.....4................2.1.1|142432531514124232353154414232323141","001111002213452233456663455667457777|2...2.4......3......14....5........2|235321414143232321141454325231413452","000112301112405552466655466788447778|.....3..5......1..5.4....3...3.2....|531313145242323151514242435313121242","001233002243022443556743566788566888|.....11..4..43....1.....4.........3.|231531152424431315124242453151312432","001122011322041332445533665577666577|...2....1.434..........135.2..2.....|323212151543434325121541353232241414","000111023344222344256334556677556777|32......1..53..3........42......3.3.|324312151245324312151543424212313534","001112001122033324563344667778667788|.4.5.1.......5.2......3.......5....2|542541213132354241123132345241513132","000111200113224433224536775566775566|41..3....5..3....2...4.5.2.2.....5.2|412432253514341232153415321234143512","001122001112304556334556334776884477|......2.3.5....2.2..............343.|312121253453141212235343542121213434","011223012223004433054446557776557766|4........3.35..2....43..3...52......|432121214353535242124313351252143414","001111002213444223455623556673856777|...5......34......1....2.34......3..|324521413134324251151342434213121342","011222001132445533444553666573667777|....2....1.1..3...2....2.3.....25.4.|343423212151343434215152534231125142","011222011123004433504433556677566677|4.....3....22....435.......1..15....|421214353432212154353431242124153431","012222011344013344516334556677556677|......3....2....1.3.4...4....412....|212134343452151214324353451214123532","000122001122333345366445778445778888|..5..1.1.........25.....3...2.......|235121412343234152512341345123212341","001222111133444533645537688877668877|..2..........2..4....3.....2.31.....|212321435153124242431315254243131312","001122011122033334055344665574666777|4.....3.5.........1.....45.3..31....|423212315434543212121543454321312143","001112001332444332445322555667856677|2...42.....5.3...4..13.............1|232342141515532424141313325242143131","012222011334001334506644566774556777|1......32....5...5........45..2....1|141423232314451425132313454542231231","000111201133222433256443766488766888|3...2.......32......3.......51......|321521143434325251413132252451141324","001111002213022443562443566677556777|1..4...5.................531.4.1.2..|143415252523313141424232353154214231","000111002211322444325644335666355677|4.....21..254..5...........13.......|435341214125453531124242353135212421","001112001122333344553444556677566677|......2434...........35.2.5.......2.|312152243431352124414351235143542321","001122001123445533445673888677886677|.............1......2..32.5...4..1..|213121342434213121342453215321432143","000111203314255544255647226667888677|..3...........5.32.3.......3..1....1|123432341214125432431214254353132121","000011222231245533445533666788667788|......5.............2.53.35..1....2.|234121512343434121212353435141212323","011222011134055534065334065774666777|....124....3....1..........1...3...2|515312434243121512353234214151432342","001222011322014333054673556677556677|3..4.21...1.......4..4..2........52.|351432142515231324452451213134342521","001122001122334156334556734556888886|..4......1....2........4..35........|414232235141142323351414123532351241","011122003112403352443355667785667788|.4.1.......2.4...4..2............23.|143131325252141414232323141414323232","011222001223441133544633556677556677|...4.3.2.....3..32..1........44..2..|353423121514434232121515353434421212","000112001122334452334455637755666777|4........3.....4...1..5.2........13.|425242131313242424313153254241413135","001122001132445133655573668573688777|...1.34......1............2.2.2..3..|212123435351212424353151142423231314","000012304112344115344555666675886777|5..4...2..3..4...........5.......43.|531452125231343142212531453124212431","001122001122333455334445664788667788|.......242..1......4...31.....4.....|131312424243135312241243135312421243","001122001122341526344556774556778886|..4..3....4......22..........4..2..3|414123232341145152232431141524232313","001122300122340125344155336665777665|43.......3..43.4.....2........1...14|435143212321435453121212354535123214","001122301122300142334445367755667755|.2........4..5..25..1..4...........2|423232314141253525141434523251314132","001122003122403333445566455667457777|...34..3......13....2...4........4.5|121342434213151352232414415323532415","000011220331425333425566445576477776|.52..32.......2.243................4|152323234151512324345413121352434214","011112001222033244533664555664577774|..2.....1.1.1..34...............3...|252434431512124343431212125435343121","001111001223042233445533465577466777|3.5.4.............3........2.543..4.|325241513132424251351343124215431342","001111223341233344255664255564777766|2...4.3........4.2.......1...1.4...5|213542342131153452242134513521342145","001112001322443355433555466677466777|1.........3....4..41.53........2..1.|123242341531253424412531353424121513","001122001122033142333445664455667775|5...5.31.12.......5.2...........1...|543454312123243541512123343541121232","000122001122331144335444665577665577|1.........4...5....4..542..1......3.|125212434343215121342354215121343434","000112001112333422554444555677666677|.2..14.4..........2....4.1.......2..|321214543452312131253524314131453242","001112001122333342536642556667588887|.1..3....4.......3......1.3...3....1|412132235451142323251414143252321431","001111000233442223442553665557666777|...4..2...........42..42......5..1..|313421245134313251424142313253524142","000122001122344452344655336677888677|3.5.4...........2.1.....34.4........|325242141313232425151313342424213131","000112300112334152334455664475667777|42........4..1.........112...2......|421353535241214132435241121352434213","011223011233044253644255647755667788|1...3...3..........4....151....4....|121232343541212123343451151234243412","001222011322411333444563774566775566|.13..5.4....3.1..5.............1.1.1|313135242424351315124242435353214121","011122000122330442335644355677556667|.2.3.1.4.4......2.2..4.....3........|321321145454532323241414135323242151","001122000112334152334455664775666777|.3.13.............4......5..4.1.2..3|234134415252234341412123353541142123","000012033112453312555316778666788886|.2..2....3.1.......4.........2...2..|125423341351125242341313125452341231","001122001122031445633455674485677775|....3.5.4.....5........5....1415....|323131514242425131313425242514151323","000122001122334425644475668875668875|.1...2....4...........1.1...24.5....|214232353141124252351313142424253131","001111022213423333445566475556888886|.....1...1.....4....2.....3....45..2|313421242153135421242134313451245132","000112001132445332445332667778667788|.151.......1....2........3..4..4....|315142242351131424242313131542242313","011233001233041253044255664255667777|.....1..........5..2.....3....4..3.4|313451252124134353421242134513421324","001233011223415523444553466657886677|...4..1...14...5.......1.......2..3.|232423141314532525214131353242124131"],"medio":["0111233011224305522440056644775666877599887a99988|....13........4............45..3..523...1........|1315132524245141353233241414515352523214144153232","001112200311224433562743356674485697aa8899aaa8899|.1.4.........43.........4..1..........5....1...4.|3154231242315435152321234141341232325351514124342","0001122001132244433524463355766855977688997768899|.....4.4..........5.13..3.2..2.......4.4..3.....3|1252343431412512525313413424525251541414243235313","000111102213334225533426655544667774899aaa88999aa|2....2...3.4.....5..................24..43....2..|2145324353141321252523434143151232142451431313252","0112222001133340553364455766445777899aaa88999aa88|.............1..3.5..5............5.3.41..4.....1|3232143141432132325435454121121234553541234212341","001122200122330415663445577344557738899aaa88999aa|1..23.22...........2.........3.....41...5.3..1...|1412312253545331421214253434534121241534533241212","00111220331222333145677444567778866999888699aaaaa|.2.1..1.........3............1.....5..3.........5|1231421354235421354233521314214525253231411414235","000112230011223331425667445566775589977a88999aa88|2..1.........2.4..........1......3..3..2....2...1|2141343353521214243542351212142353553142421423131","0012233401122344115664775566487759988aab998aaabb9|....3....4.............2....1.....5........5....2|2321313414524235313132424242131313524242411513132","00112220001122334415533345556777899667889966aaaa9|.2...2..1...3..4....2......4......335....4.......|4231421315253524314123152354423412335123541234121","00111220331122033345567844556784999777ab9caaaabbc|2.1........5.....3.......2...3.............5.....|2413232152454134131321524241231313214242412513132","00001112220311442335544433556778889666a8996aaa899|2..5.5..3....1..........................24....4..|2145253432314125152321343414421253513531242412431","0122334012233401255340667558966778899aa78b99aaabb|..5.........4.....3....1..................4.1....|2352312414154332323211414143323232115451434212321","0011222001123340516334456663455677748999aa8899aaa|...1.1.4..........2........4..3............1..4..|2141213452345213452132521354313421342513523142413","0011112003312244335564445566778966ab8899aabb899aa|2........3.....1......4...4.......1..3..4........|2121341343452321213155434242121513134342422121353","0111222001132200433356447755644775568997aa6899aaa|.2.....5....233.1............4.5..3......5.......|1213541545412332123411534152242524331313154242423","00011223011122334444253467885566788996678a99977aa|1...2.3..................1..2...2..........15..13|1231243345431212125453434132212525134313422154513","0001111022213344225634455566777856697788aa99998aa|4.....5..3..........1.2...5........1.............|4212345353412314123413254152541323113241422453231","00011220011122333444233554467855966885a99688aaa96|.5.2.........4...3..34.2............4...41......5|2512321434515425134234325154151432334321411214325","0001222340112234411553446665378966a778999a78889aa|2...........24...1.3..............4......2..4....|2312135154352423214314143252325141441323523241413","001233311123445512444556277788669a788899aabbb99aa|......15....................5...2.............3.3|2121231534345412121233434341512125224354143121323","001112203312220435566044556677445887999a88799aaa8|15....32........1........................33......|1541213232345245151343242421413135425242133131342","001122233311243355144677554466778896aaa8996aa8899|........4.......3..1.5.............3...3.4.......|2131312542424531315125242434413152535423142131423","0011122003112204333354466655446677899aa78899aaa88|4.....4.24..3....2................4......12......|4532124324543115321523415431123212434543512132123","00111223331142355644755866475886947a8899bbaaa99bb|.......4..4.....1.........................2.4....|2153132432424115131323242451413132335254142141232","0011122000112233334445566744556677758697aa88999aa|..3..1..............2.1.......4.42.4..2...2......|3231412415253432414125132353324142141525342343121","001222200113324451366455137745583779a888bb9999bbb|.....3..2....5..............3............42......|1414132323254514141212525343343121251243542431213","0001111220333124435672444557289a557889aabb889aabb|.4.35.........4...........................4......|3413512252423441315123542343121512135343434121212","000112230112223334555364447766884776988aaa69999aa|....2.3............1...1..........1.......3..4...|1424213531354214242133513542142423125315423124313","011223301122330445553064455766477778669aaa88999aa|1...........4..5................4.3........2.1...|1414252232314145145233232315414142335325141241323","0011122031142233344423556478555667899a667899aaa88|......4.4..2.33...1.............................5|2321314145425332131425452531213142434253132131425","0001233001123344122536447258664778866977a89999aaa|.4.3........5..........4....3..2..4........32....|3423131151425223253145141423325251441434325321214","01223330112234011255466677548667755888799abb999aa|.......1.........5....4....2..............2..5...|3212123143434125152533423142151523134241422135231","000012233301223345552444556677889667aa8999aaa89bb|.......3..5.......3.5.......1...........5.3......|2134131342524215343152415242132313124542543121312","0011112001342253334225534446557886699778869977a86|.3..3......1.12......3......5..3..2........3....3|2315343142415125132423424535515314224242511313143","0012333401223544112254666655776889577a88997aaa899|...24........5.......1...................22.2.2..|3232413414532523214141543232431515115434322321214","0011223041122304444230566663555788395777889997aaa|3.........4...............2.....1.5.............1|3523213241454213521314213424134213545135421324231","00011220011222334455534467553466688996a88b99aa8bb|3.5........2.................................1..3|3154131242324513145314523142231423114535422321213","0001222311112433355446378544677899966788aa6bbb8aa|.............5........4.........1...........3....|1232123541534512321233414341123212345453412132123","001111230041523344455336645578669aa78899aa7899bbb|4..........4.....5..........1..........3......2..|4252131131345225251314343424121251334343422121213","0112223011122344445336645555666778899777889aaaaa8|....1........4.1....2.5...4...............3..5..5|1414131252325431451322523245341453212321413415325","001123300122330442536774456677855669885abb998aabb|1.......4....23.....5..1.........3...............|1232351541414232325351414141232323214141413232323","00001223340122344115234615553766885776988a779998a|..3.4..2.....11.....5..................53.2......|4135424254213113135254242431351312514245312313242","00111120033422033445566447756667785999a88599aaa88|.4..3................3..1..4............3........|1421343353421221253533541414412325223541311413242","000111200331224433556447355677775668899aaa88899aa|.5....3.........3...........2....1..4......3....1|2532143141432132321434145352253121414245322353141","0001112333142233544267754426775886699588a69998aaa|........43..1.2.....2..............35......1.....|3121232543451421212324343454121521335343454121213","00012230411223445123364417736687779aa8bb99aa8bb99|....2..4.....1.....4......3..............12......|3121243453535112121423434535121214234343512121243","00122331112233145553674485967778999aa789bbaaa88bb|......2.....3................5...3........2......|2123212435143412432514315142152423134315422152313","00111220031422533344655537768897766889976a899aaaa|.3.4...1............1....................12..2...|2324131141324235241312413525132414345153212342453","0011122001133304433554467788946a788966aabb996aabb|.......2.5..................1..............4...1.|5121312245424331315124542343121512135343432421212","00123330012234051124455617485569788aaa9bb8aa99bbb|5.23...........4...3.......................3...1.|5423132235424114131322524241131313242524541341312","01122330012233041255304665574466577849aaa78899aa7|....4....35.5...........................15..3....|2121414353535312421424313531152424234153151232423","00111220033222444335564477556677899a66b889aabbb88|1...........3.3......1............2..............|1313212242453435131211242434353151224243433131212","0011122000112233334445366748596678899aabbb99aaabb|...1.....5........2.................3.4...2....4.|2421313135454224132311524142241323113241522515343","0000011223111422333442566744856677789997aa8899aaa|...1...1............2............1........3.....1|2531414142523525314123142534423141215423533231421","00111120013222453336645537664587776998887a9998aaa|...4..1.........2..........1.......5.............|3234251141534223241531413241325413254132541324132","00111223001442356744235677823667788996abbb99aaabb|.......1............5...........2........4.3.....|3232121141434332352154141434252321214145342323121","0001222001111344456637455663745889377a88997aaaa99|1......2......1.....2...............4...........2|1354132241325413241322413241352415314132415324532","00122340011134551663455566347888999778aa99bbbbaaa|4...................1.............2.1.........3.1|4121212235343414121212534343342151221342433421351","0012223011123304156734455673489567a88956aa8899bba|..2..............................................|2421242353435312121214343434152121234353431214121","00112220011322451336645537664883769488a7994aaaa99|...1.5................2...3...............4.....5|3431452212523153431421215231343415221253434341215","00000112223311425637142567774456687995a6889aaaa88|....51....................2..4....3......1.......|2143515432124221453533532124141435323251411413232","0001111002233342255334665557468777748899aa48899aa|.3.....4...35........2............2..............|2354213412135453452122121343435451212123433434121","0111222000123344053334455666748556677899aa77899aa|.....3.4........1..3....5............3.....1.....|2123134435425212131344345421251215334343425121213","00111220034222033445566744556677888997788a999aaaa|.4.3..2..1..3..............1..............1.5...1|3423142251453113232422451531132324524141321353541","0012223001112304155664455566478888647998aa77999aa|4......3...........1..............2......4.2...3.|4212131353454214213132354245142153253534141241232","00122220011233011333455566445576668997a888999aaa8|.2...2.5.5..........................5.........1.2|3213124545453513212422453531132412425135311342142","001112203314423351442355666275896aa7889aaa78899bb|2....2..........................2.......3.2......|2342121151343434252152131343342421215135342342121","00012220011344551334455336678596677889aa778899aaa|.3....11..1...............4.5.............2...21.|4352321124154335323211414143523232141454542321213","00111220333112033445566647556644778999aa8899aaa88|...1..23........1...........4..........45.4.....3|2121312353454342123211534143421532115324544215323","00011110223331422553342655774866997488999a488aaaa|3...5..1..4..4..................1..........5....4|3423512151423423231511414232532314141452323523154","001223301122234155566415566647888887799aaa77999aa|......1...5........2.............5..4...4..1...3.|3212321153514332143251452143231435254252412134135","0112233014225501444550166475886667789aaa77999abbb|.2..41.......4.......................3.......1...|1231412345235421314124545253312131224342433121312","0011233011223344122534466755466775588997aa8889aaa|..1...4....2.....3..........5...........145......|1313154242423113535424212131534345221212145343532","0112333001223304122554416655778866977888997aaaa99|.4....1.....2.....41...........54..2.2..........3|1415451323232341514142323232414541425213523134213","00122330011233441122344555664775566777888699998aa|.3....4...5.........11.............5.....53......|2323454141523252341511452343321412154323453214121","012334401233440122354112655577666587796aa879999aa|2............11.3.3..............3..35....1..2...|2141232352545114313243252415541353223541411412323","00011120331222433526644356664775588777588899999aa|3...................1......3........2.....34....2|3243412151253443431212125453343121212543453412512","01112330114223044425506647550666778999a77899aaaa8|3..............2......4.1..3....3............3...|3234121451534312342125451543213232134541431213252","0001111220034422233456633755666775588997aa88899aa|.5...1.1......5.............3......5....3........|3523214141453253232144141432325325154141321323241","001112200031224433355644375568497aa689977a888997a|..3....12.......1...2......................5....1|3532424124513143132422524131341524212343533512141","00112330012233441223544665554667885997788a99778aa|.....4........5............4..2.....15.34..2...1.|4241241313535354241211313534242421231513434232512","0111233012223300244530674455667777566899a588899aa|5...3.3........1.......................4.5.1.2...|5132313345145221232144341432212351445414252132313","00011112203144222334455536778556667889aaa78999aa7|3..3..11.......4..........5.......2..............|3423241151453234232142151453434321212154343432121","0001233001122344152234415567885566798866a799aaaa7|3..51.4.4............................1......3....|3525134141345123252324141414323252314143413232152","00111223001124333444435677885567788566999a5bb99aa|.1............4...3................4.............|4151323323241441513522324241151313243452412123132","0112233011122405564440776684977a68899aaab899abbbb|........4...........2.................5...1......|2121212343534312121524343434521212143453541212413","000112200331114433555463775546678884669a889999aaa|1.......4....3....5...................1...5.4...1|1352521241314353245212153134434242112513535342421","0011122003122244335567438566773556977abbb9aaaabb9|.............4....5..........5...........2.4.....|3234151141232432545134131242252431313152425423131","00001120331112443555244335567777886999a88699aa866|.5..........4.............5..42........4.4.1.....|1542321323154341423122351453142321223514344123515","01111120334442033544266557726657782995aa88999aa88|1.1.................4..............5...25........|1215341343425221213144345425212131354342523121343","0112233112244351244665554766888776988a7999aaabbb9|.........4......2.....................3.4.1......|1213131434524225213131435454321212345435411321232","001223300112330441153444555566777776668999aa88899|5......242..43........3....................2...15|5313252242514315143214325143214325143514321243215","0012233401113344551364555666477776899aa88899aabbb|.........4............5...................1......|2321212514534342321523514341143215232143411432123","0011223001223304455367455566777866978888a9bbbbaaa|.......4.........5..............5.........1......|2313231452414213152314243142531253124531421324231","01112220013344055334455637886667788996aaab999aabb|......2......................1...1......5.43.....|1314312242524331313122424243315131252424534313121","0111222013442255334665733668577996877999a8bbbbaaa|....41....................................1......|2321413145325223141314523242131415324532411324132","000011120334112335444236664722886679888a7799aaaa7|..1.4.33......2.........................4..3..2..|4213413354525221214134345352512121324535451314231","011122201133220043356044355677445667788996aa88999|13....2.42........................2...........34.|1315452542313123142454525131213424234215132134342","0000111223341123334552664455266478599aa78899a7778|..1...2.....4.....2.......................3...5.1|2314532142314125142523435343521412114323433214521"],"dificil":["00122222001113330445136644457766885577768859aaab8cc99abbccc99abb|....4........1..3..2....1..1......5......1...1.23....2..4..1...4|2523425141415132325234541431513252543241413251323254325141315434","01122233012243330144445566778885667798856ab99cddaabb9cddaabb9ccd|12....4.......3........1.4......3................51....33.......|1231324234545135213124215424315431315423242423141515145332343212","0011223300112233444566634455566788999a77bb99aaa7cbbbdeeeccddddee|..4...5........3..5..........1....4.............1......4.3....1.|2141235443234123215123414323415221412343353541211412353423541212","001122330001123344516637445668874955aa87995aaa87b99ccdd7bbcccddd|1..1...1.2....3....2..5...............4.............3..4.......3|1531324132454132453232513141413225253545131421232425345413142123","00012233001112334551623745586677445866794a888999aabbccd9aabbcddd|.31..........3....2.....4......1...........5........3....41.....|2312421345435352232121434153452153421343121545123532323414141412","0011223340112333441526664555276845999788abb9c788aab9ccddaabbccdd|3.4.4...........5.......3.............4...........2.5...2.......|3242423241313154525254323413121515254343434121215123534323514121","0011222300014333556644437556648877769888aa799bbcadd99bccddeeebcc|.4...3...........................54....2....143........2..2.....|3423231221515453343431212121243435453512121214343434525221213131","0011112203331222443355554466666748888977abbcc997aabccdddaabbcedd|..3....5.5..5...2........3.1...........................3353.....|2134214535215321214321435321435241432143252143214145254335313121","00111233004122230441255544677558996777889966aa889bbbcaaabbddcccc|2..4............5....2..................1.....2.4....5.....1....|2434523131523152524142413132353525454141132123234543454121212135","0001122340011223455162335566677788996aa788b99aaacbbdddeeccccddee|.3..5..3..5.............1......4........................1.......|2312521314541354232324211414513432323252141414132325232415431413","00111223000122334444556347775566887799668abbb99c8aabbdcc8aaddddc|1..2.....2...3.3...........2............2......3...........4....|1312424252431313431542542542131343134242254213131313524254241351","0011223300112433051644435576664855799888a779998baa7cddbbacccddbb|.4.5...15..........3...4.............2.........5..............14|3435323152121452134352344212141515453234323214151454323223121414","01122223001143330051436677554888779944887a99bbbcaa9ddbccaadddbcc|12...........4.5...............34.4..............2...5....3....4|1234312154515435323432121512154342454212353213451215451234321234","0012222311114233566644435566477355887799aa887999aa8bbcccdddbbbcc|.....24...1.......4...3........2..4.......5...1.............2...|1253524343124151154352344212141253435353215124123424353421352121","00112233011122334445566644557768999a7768b9caadd8bbcadddebccceeee|.2.......4.......3....4..........3...................1.3.....2..|3213134214524213231313424542421323131352145242413231315341425241","01112233001122330444526607445586779aaa88799aab887c9ddbeecccdddee|......3..5..2...3....53.........................3.....3....4....|1215313145342424312515312434324215125131243432523121513124343242","011233440112334401225566072885967788aa99b7ccdaa9bbccddeebbcfddee|...........5.........3.1....................4....3..........2...|1231232135454143212323214341414321232321545141432323532141412143","00011222304411223445555533467777836679aa886b99aa8ccbb99a8cbbdddd|.....3..................2..2............1....5..........2.......|2313231414241452353532142412145235343234141515125323234521414123","0112222300144233001544436665577766888977a88999bbaaccd9bbaaccdddb|...1.3..2.3.............2.5...511...............1............3.5|3121432325352541414141322352325114145434232321211541454343232315","0011222300112243556177435567774388699aa388669aabccddeabbcceeeebb|........4...5..................5........4..4...4....35...4.....2|2123234343515121212434343435121512123432435412141212353534541212","0111223300122433055244367558499677a88996baaa88c6bbdeeeccddddeecc|...2........3.......2..........4...4.......1............4.1.....|1312424242453131313124522425313431342421242131531354524242131313","0011122200011332445566334455663748886997aa8bb997ccddbee7ccdddeee|....3.3.42..4..2................................3..............2|1512313442354252354213131213424243425313121314243454253121213142","00112223401152334661523346665777489999a7b889caaabb8dccaebb8ddcee|...34..1..................................4.............535.....|2123432143412145212535323534121412125453434313121212424353531312","011123330411223344566667445688879955a8879995aab7ccddaabbccddeebb|.3.....4..2.1...2............5..5..................1...3........|2315251415241323231524141423152353542341412351522341434341232121","000112334001123344551236445577668857776688999aaabbccddaabbcccddd|1..32..3..4...422.......4...............4............2..3.....4.|1253215353414342215352134321434221452151432134322154525134213143","00122334001222345511663455517644889776aa8997b6aa89ccbbdd89ccbbdd|1..3..2...1....43.2............15...............13..............|1353242324141514352324352414152153232343241451211323234345414121","001122330011123304455266447755684977a568999aaa88b9cccad8bbbccddd|...2..3..4...4..2....................................1...1.1....|1512123234345414215123234323451521412343432345212545213441313421","00001223405112234451126345576663885777938abb7c998bbbd99e8ddddeee|...32....5....2.1...................3.....5.....53.............3|1243241445151323134345412521213234343545215121215324535414132123","0011223300112233044125564477556688799aa6887b99aaccbbb9ddceeeeddd|.........4....2.1.....................................5........4|2321343454542121121353434342121212153434343212121214345334321214","001222330114425566144455671889aa6778899a6b77899acbbddeeeccbdddee|.1........3............2...........2....................2...4..1|2142312135315434242432121515143432423252513141313425354221314231","0011122200033322444355667445556677788869a7bb8999aabbb9ccaadddccc|4.....4........1................2.5..........1.3....3..1.4......|4121354323542121541353431324212124513454132421232515354134321235","00012333001122345556624455666447889aab77899aabb789cabbd78ccccddd|..43.............................5....23.4..........4....1......|2343432151212145235453231423141535142323142351542351423141423142","001222330011243355114463555446667778896a7b8889aabbcc99dabbccc9da|..4..24..3.....14............51...............5.........1..2...3|4141324223254151451323231325451424131232352454512413132413524513","001123340011235460122354667725556778899a6bb8899accbbdd9acccbddda|3..35.................................3...........32....15......|3523531314141452325232314141414223232531541414243232351315451242","011122220011332455663444566337745869977788899abbccc9aaabddccaeee|.4..24.......................................1..5........2......|3431245121253132343125411525432323432541412141325345325112124132","00122333011224350612444506178845966778559677aaaa9bbbcddd9bbcccdd|....5...........3......2..2...........1............4............|1213541254521234313435124525124313434315421212433534351221212434","0011112200134552663344526633475588997777a8899bccaa8ddbbcaadddbbc|4...4..2.......3.........................1.......4..4....2.....2|4351434221232153434543211212154343434321512121433453435112125242","00111222003114225536644455367748599677a89996aaa8bbccad88bbbcdddd|3.51..3...3..1..........3............4.........35.............3.|3151243224343151152524233414135125232424314153135232425231415134","0011112200331422553344465553746688877966aa8b999caabbddccabbdddcc|2...4..4.....2..................2......1.......3.......521..1...|2323451414151232323235141454142323132351154514234323231521451424","012223330112453300164555706668857769888a7b99cccabb9dccaabeedddda|2.....5..3.......5.....4.......................4......2.........|2424145213132313452415241313243124545125312124342434512131212353","0001111122003334255633447556688977a6689977abb899caaaddeeccccddee|35..5..................1.........5.4....................5.......|3543542121212153343534212121213435343451141212323254341454121232","00011233441122234441255367789553677899aa67888aaabbcdddeebbccddee|.2.1...3.............1...5.............5........3............5..|1231315354525242321431311535242434243135213124213424313421312521","001123330011243350122444556627485566778899997aaa9bbccddabbbccddd|3..2......3...51........1.................4.......5.4....2....3.|3142143242353251351241431243535245124213124313425352425112413134","011233330112223400552444065577886667778896aaaab89ccabbbd9cccdddd|2..5...2................1......1.4.....................5..3...2.|2425413231313254454241321231354134542135212135423454213512313421","00011122033411223344556637885666778899aa77b899aacbbddeeeccbdddee|3...3........1.................1........2.........3.3......5..3.|3125323245414141132323232414145113232324251514133434352421252131","00011233004412335544122355546677889666aa899bbaaa8c99bbdd8ccccbdd|5.2......1.....2.2.....................33........4......2.....2.|5421243131353152424142341352351254141243325235121434143425123521","000111123044442233546677855566778859997ab8c99daabcceeddabcceeedd|...................3...................2..........3.34..1.......|1232134234145213125313523412421312351342341425132535342414242131","0112234401152334015553346677778866679988abbb99c8aabb9dccaaddddcc|.......4.....4........3..5.....4................2....4.2........|2131213434543451123212324514351412321432351432152432543251513254","0001112200311222433555564433777688899776a88b9cd6aabbccddaabbccdd|3.4..2...5....4..........2..............4....5...1......3..1.3..|3141423225353541141412323252541451431323432525412143412335212351","000122334001123344415236477155568779aa568889aa66bb89acddbbb9cccd|.34...5..........3.....2................2.....4.........5....2..|5341415221235343435412121212543534343121215125434343431252121243","001122330041223344415663477755668877556988aaab99ccabbbddcceebddd|.......3............3.....1...............2..1.........4..1.....|1413431332521252143434142512123234345451212131324345425412123132","001233440013334450166647551667778599997a85bcc9da8bbceedd8bbeeedd|1.....2..............1..1....5.....4...1....................51..|1341212125253454343421311515354234341231125235424341423121235152","000111123300441233554422355664728866697788aa99978baaccddbbbbcddd|.5...1....4..2.54.......................5.........4..........5.1|2512514113434235421215425343431342521242531343131242124243153531","001122330012243351166437556644778596a4b78c99aabbccd9aabbccddddee|2..............2...................2..1..................3..1...|2314141314532352232141414153523223421414151352524242434313531212","011222330111422300444553067745586677758896aabbb89aaccddd99acccdd|5........................4.............1..........1.....1..23.2.|5342412142515353313424142425132313134541424212323515454112323123","000122330011243566144455678849a5778899aa77bc99aadbbcceeeddddccee|2...1...1....5.................................34.....2.1....4.3|2354132314232514231413231423254123141325152324134315152415232413","000011223341112233445555634478856699778ab699c788bbddcceebdddccee|......3....4.............1.........3..............5.........4...|1432323125145142432323512145412443232351214151434353232112414143","001112230011422350644733556667839996778899aa7b88ccaabbbbcccddddd|..2.3..........1.......5............5...........5.3....1........|2321313451542421243131353152424252315313414242525231534131424153","0111122300142233055444637558466679988a6b7998caab7d9ccaeedddccaee|...2......1...................1...........3..1..........3......1|4542323213151414242423231313151442424232313151412454232331231541","00111122001332245066377455663774856999748899aaaa8bbbccdd8bbcccdd|...1...3..4....................4.........2.........3....1...2...|2121531343434242251513133424242451315351424241233513534114242123","0011112300012222455666774556677745888899abbbb8c9aaddbeccadddeeec|1..............4....53............5............1..4.............|1525343124312154152453232431245131543132423152413142413225313241","0011122200011233445566334445566377885699888aa999bbbaaaccbbdddccc|4.5..43...1......2.....2........................2..............3|4252143153143254425251325313424112421352531354132454125213123413","00111222301144223334445536678885667778956aa7b899aaccbbddacccbddd|..52.4.....4...1......2.........5.........................15.52.|3152142342345351315124232424315151315434325232121434143432152521","001222230011433351144436555748669957886699aaa88b9ccaddbbcccadddb|4.4...........4..........2.....4........5....5.....5...4.53.....|4141423232323541151412324232541431513235523245124145323425314151","0111222300042533066445378666457788894557aa99bcc7aa9dbbeeaddddbee|.........5................................1.....1...............|2123213435414521123231344541425213235343241421211525343434312121","001112330011222340555623445566738449997788a99b77ccaabbddccabbddd|.......21...4..1.................4.....3........3..........5.31.|4343514212124351354351232121234534534123121253513434142421252315","0112222200113334551633445776664457786999a7888b9cadddbbccaaddbbcc|..43..........3....5..........5.......................543.2.5...|2543214531214531243521241521345334342124212134314534215431215323","0111223301142233004445360775556677895aa6b7899aacbb899dccbb8dddcc|5...3....3.............2.......1.........................2..1.5.|5214343213521214241343523525214141414323532321411414532332321454","01112233000112334405623744556677855966a7888999aabbccd9aabbccdddd|..2.1..42............3..4...1..31..............3................|3124143424535212131243544243121315125352234341434121252123434135","0001222200112333441155334465577746688799a6688999aaabccddbbbbccdd|32..5....1..3...2..............3.................1.5.....3......|3251512441343431252512523434341312121252354343414125212323414341","00012233001112334415556644477566888977aab8897aaabb99ccddbbeeccdd|........1.........3....4........2.......4......4................|4231314115425232323134144152523223414151415232343234141215123234","01222233011123330041555604447556884779aa888779aabbccc9ddbbcc99dd|1...2..3........5.........1......3.....1..........1.....2.......|1545231342131524535424312413515213242431245315241312431324531242","00112223041122334455556344577766887799a688899aaabbbccaddbbcccddd|1...4......2......4......2...........3...3.....5...4....1......3|1343423425121512434532431212151245434343132121252454534113231253","0011223301112233045677784456678849566a8b495aaabb995acddde9ccccdd|4...............2...........5....................3....3...4.....|4123234335414121212323435454512131312343254541214312353412451212","00112222001112334056773345566783445669884aa9999bccaadddbcccaddbb|.....5.31.3.................5..51...............2........3....3.|3412154312354212454213432313521515241432343532142512145213453231","0011222201113333045666774455688744556899aabbb899aabbcdd9accccddd|........1..................5....1...............2.1...1...2....2|2431342115242134343135212525214313414351452352422314131314235452","01122233011425330644557766485577668889aabb8c99aabddcc9eedddcceee|.......41.....................................2..5.......31....2|3212143414343521252121343134342124215134313424212525135343132412","011222230011233344155553446657789466778899967aa8bbccddaabbccddee|....1.....5......1.................5.....1......................|1412153423534215412153432343215245254343213121213424343421312121","0012233400122334551123645577866495788aa499788aaa9b7cccddbbbbccdd|.....2........34..............................5..3.....1.1......|3131425124253134131424252423131335154242124231534351424151423532","00112233011222334455663744588669a4b88899abbcccc9abbddce9aadddeee|.2....4........5.5................................2.....5.....2.|1212124134343535152121213434343412525151343132422125451354312324","0111222304411533004455637048856677889966a78b99ccaabb9ddcaabbdddc|...4...12.......3.........4....4...3.............3.....3.2......|4124213125353424312121532545432413132513542513421313425342421341","011122330011243355562444556677748869977a88899baaccddbbeeccdddbee|.5....3..........4........2......5..........................5...|3534313421212521345341432121235235434141412123232343414141215232","001111120003422255534446753334667788996ab78899aabbcccaadbbccdddd|1..........5...4...............2.......5..1.......5.....5.....3.|1343125245254314134312534212431213431245421243131353124252424531","0000122304111223445566674455667788899aa78bc99dd7bbccddeebbccdeee|........4.........................................4..1.......524|2135413245213241213451323421245121343123452124543145313142312524","01233455012234550122644711886647988a667798baaaa799bcccdd9bbccddd|.....1.........2.2.4.....4...................3.........5....3...|2121214135353532121412453435353221212414343453231512141542453234","00112333041125334462255744662577866999a7888899a7bbbcddeebbccddee|..3....11...3.5..2.............55.......................1.......|3234143114123252525451311313242554251313213424243451313112324242","00123344011233440112234506788855667789956ab77995aabbccddaabcccdd|.2...........4...5.............4.......5............1...........|5242123243135414152413523413241412541325341324132524132431352413","000011112222334155623744556337445888977ab889997abbc9ddaabcccddda|4....3.2....2...5...........................4..1.....1..........|4321431221432545532513131413452523252143414143212325214514134532","0111222200133442001534667755446877559988abbb9988aacb9deeacccceee|2......4.........4..................4........2........4......2.3|2145312435312435142431212351253541234141234152324152314132314253","0122333401123444051164775586667755899aa7bb899aaacc8d9eeecc8dddee|..1.......4....................3.......................1.....2..|2312123115434542321213151543424343121512125432343431545121243232","0011222200111233444556334455566788999a678889aab7cccddab7ccdddbbb|1....21.........2................5.......4...2.....2....2.......|1252321434341532251234144345123215123414243412533152534124314123","00112233001223334115266745558877499aa887499abbc7dd9ebbccddeeebcc|..2.........2..5...............34....................1..3.......|2421312131342435245151211324235345131414324253524131414132423232","001122330001123344555223445566678499a6678899aa77889bbaccddddbbbc|2..............2...3...................3..........32..........4.|2432324131514132424325451315431245421253321534141532123232143541","0011222230145266301456663044788899477a8899b7caaaddbbceeeddbcccee|4.....4..............4.........3...............2................|4243254113151323252424513131312324242454313131324242454113151232","000122334401123344511223455566667588869a777b8c9a7ddbcc99ddbbbcc9|4....52......................13.........5..............1.2.1....|4121352425354135141232413235413514123241523541524142323132314542","0111223300112233405566374866697748abb99748aabc9d88eaacddeeeeccdd|.........4.....2............5...3.......................4....1.4|1312121424543432131212514243543235121214243434323152525142313134","001112330001223344412566774555667775888699998aabccddaabbccdddabb|...............2.1....45.......................2............32.1|1214524343531312214242454531353231242141243135323152414542413231","00111233004112335446627755468877956688aa95bbb8aa9ccbddee99ccddee|...................2.....5....3...............4.........5....3..|3231212141454343323212121514343434351212121245434343121252124343","001122230111223345566337455866774958877a99988aaabbccccdabbbcdddd|3..3.1....4.4.52..........5.....................3......3.4....2.|3213513415424252323131311454242423131531142524253534151324123425","0011223300112233044155534466577899666788999aa788bbaaa7ccbbddddcc|3..2..5.15.3...3.................3.............33...............|3242435115131243434543122121254543534121521253433434121212123434"],"experto":["011223444012223334015566377055566877999aa88b799caa8bbbccccd8eeeffggddheeffggddhhh|.4.....4....4..........13..........5.4.....................1.......3..........4.1|143121341325434252413121313252434245143125312252434243413521312324135254413241431","00112233340012223344055566788885566798aaabbb799aacccb799dcceeeeffddgehhhfffdggghh|1...5.5.1..4.......1................4...........................1.....3.4......2.|132351541254143232312321414254145323432532141151414532232323214514145435432323121","012223344011523344055566647088566777998abbbc7998aadbccee8aadddceefgggdhhffffgghhh|................4.......................2.3...........................4.2........|424124352313531243242124312135351543242424321131515143424234321131512143254343521","00122234401122533401165553476666588477799888ab7c99ddaabcc9ddaaebccfdggeebffffggee|...2....51......2.4...............3..23...2..................3............2....2.|323231415151545323424312414515243532423151245315243512424312434131543151242312423","0001112223300144445336677885539977885aa99b7c8aaad9bccceedddbffcgghhbbfiigghhhffii|5......2...................3..4...............3................3.......3...1..51.|521214123343432341121215123345432354212151421435423534212314121345452343212134512","00122234400122334455113367455518867799aa8867799aabb6ccdddbbeccfgddhheecfgghhheeff|1.3.3454.........5..........3........................................4..1.5......|143234542325151315414242423235131314142424253231313141152425232343131454125242313","00011122230014444533664777533666877599aaa885599baa88ccdbbeefffcddbeegffcddhhegggg|1........3.5.......................3.2..........1........................2......4|123234312345151245123234312541451253125323414434145232512523154343415421121232134","00011233344411255344677258899777258899aabb5c8daaeebbccddaeefbccdghhhffiigghhffiii|.......4.5.......2............4...2.................1..................4..1....1.|213134341542421252131353434242412121131535345242421213313135452424521234131343512","00111223300411233304442255566477755866697aaa8bb999cca8bbddeec88ffddeeccgffhhhhhgg|5..4.3.....5..........5...1.............1.....................5............2....2|542453121235312543141254321323432543145214121321432534143214125321432343143214512","001122344551122344555677384996677a889966bbaa89cdbbeffgccddeeffgchhdeeigghhhdiiiig|.......1........4..4......2..........5................2.......2...5......3....1..|212131313353424245142513132231424241452313132131424245242313132151525241432434153","001223333111224453661274455668879995a6b87cc99abb77ccddabbeecdddffgeeehhiffggghhhi|......23..3.4....1........................2.........5...1..............1......4..|215314235432423141251514232432323151214145242353531351121424243343513151121242432","00111233300012223344456627784455667988a55bb9988aabbcc9dddaeeccfdggaeecffggghhhhff|.......5.1..1...2..........5............................................1......5.|252431351143152424325231313541452424132313131241424242132313531454542124123213453","001112344001122334556627733556677899aabccc899aabbccd9efffbbddeeggffhhdieggghhhdii|1...5...3.......5...................3..5...............3.......5............51..2|131353123424242451131313132242424241313513132424242451135151323542424514231351232","001112333444112233456772288556679988556677998aabbcc9ddabbeeccddffbgechhifgggeehhi|..5..4.3.........4........5......................2...4..2.......3..5.............|125434135431212524254543135131325242242513131131325424242413131135354242242123131","011222233011124335006444455066778885667778999aabbbcc99aabbdcceeaffddggeefffddggge|..3.4..3.4.........3................5......3.....1.....5............3....2......1|523143532414521414232345232141513141532342532214513141352324252414153134325342451","0011122230011452336074452336674455896777aa588bbbbaacc8ddbefacc8gddeffchhggdeffhhh|.2....2.2...3...4..........4.........................4..........4........3......3|125424232431353141154242535423131421315252535524314124131253531245341424132123513","01112223300112233304445666788855667798aa55b7c999abbbccd9eebfffcdeegggffcddegghhhh|.4...4.4......3.................2................5......4.....2..................|241314243135253512421341434134252521421313134135254251424131342353524253212131342","011122344001223344561278349566a78889566a78bb95ccc7ddb95cceeedbbfffgeedhhffggggdhh|1..2...2........41.............................................1.....3.....4....3|145232325321414141453523232314141454523232321141514143232425251145131342323452513","00112333400152334466652277488652777488955aabb89999aabbccddddeefccgghdeefcggghheff|....3.4..........2..2..................................4.......3.........5.....3.|342131434213525252342414341251352153434214321121532143543214321321435154153212432","0012222230111443330516444378556977778566999ab85cc9aaab8dceeeabbddfffeegbddffhhggg|2.......1..2................................4.....................5.....1........|213421531352153425414342134235253521141412434323235121451412453232535312141421243","00112223301112243305555644377566648877769a488bb999aaccbbb9daacceeffddgggeefffddgg|2.....31....4............5............5.......4........1....5...4......2...2....1|231324315452415242131524153424315324315242413243151324315234513243452342315214151","00011122340512223344566673385556779988abcc7798aabcccd98eabbffd9eegggffddeegghhhhd|........4...........5...........4...3................14......2...........1.......|132412324241354151135413232242324545351413132123252451454131323323252414414141323","0111233440112233340566227745566887749568887aa99bcccdaa9bbcceddaffbggeehhfffgggehh|....5.4.3.......1............5...5............................55......21.........|321353423145212514231434325145252541323413132141524241232313135514542421423213134","00112233304111223304555678809556678899aab77789aaabcccc9debbfffcddeeggghhddeegghhh|.....4..23......4.........1.........3.................25......1............4.3.2.|141314132325423245513151531242423242351314135142523542251341231342525454213413123","0001112334441122354467725556667789956ab788c99aabb8cc9deabf8gchdeaffgghhdeeffghhdd|3.....2.....5.............2.4..........................................4.32.1...5|312321212254543434312121512543434343121521212343434353212152121454343434132515125","00111223340012233344566677745586699745888aa99bbcc8aaa9bdccceeffdddgeeeffdggghhhhh|...1...1........3.....4..1................................2............4......21.|313142412424231534313542412242131353513424212325151534143423212325151434143243215","0011122220031442553334466657388466997788abb99c77aabbddcceaffdddcgeafhhiigggffhhii|........34........5..................................4.............2.............|214121253432343412514121253232354341141412123353234354241415213132524342241431213","000112222331142555336644778996644778996abbbb8c9aaabdd8ccaeeddd8cceeeffgghhhhffggg|....................2..........2...5.1........2.............5............3.....4.|132423152241314231132453142545124235313435141525212323313434514245121232132434541","00111222230014445236617455533677788593aabb88899aabbccde9facccgdeeffhhggdeefhhhggd|...3..2.1....................................4........5....4...........3...4.....|232343251414121434232543521151312134234543452412121214534354352121212143343435321","0000111223304551123364555728364997778a64b99c7aadbbeeccadddbeeccffdghheiifffgghhii|4.....3.3...................................1.................43.....4...........|432121323215345454342121321253434543141212121323435353141521214352343432214121214","00001223345661227345666887745598887744a999bbcddaabbbccdddaeeffcgggheeficgghhhiiii|.........................4..........5.................3.......2..................|231414231142323152235414241412353132534124241212351353345124212512431354343124213","0112334440122334450162377750662877559966888a59bbbbcaaa9dbccccae9dffffeeedddfgggge|.......2................3.............3......5..5..............2...5.....1.......|314123423425345151131212342245435153313212424524535153431214342254352513412141324","0001112230044152334446555537766688897a6bbb889aacbbdde9acccdddefaggchheefggghhheff|21......1...5............5..................323....2.....................52.1...4|214214321353532143142414352231532141152415353231324242452453131131324252452513134","0001122330011122345666777445566778945aaabb8995aabb889cdddbee8fcgdheeeffcgghhhhffc|.........5................3.4.5..........43.....2................................|123241423541532314232414523541532141123414323351232514123541423341235351123542142","0000112234055122234465177334466177389966aabb899caadbb8ecccddf88eeggdffhheeggdffhh|..5.......2......3.5.1................2.......................35.....5......5..3.|315412314423254523354131315213542424342131315213424242342131313513424542242151231","0001111234055122234455662337456688897aabb88997aabccdd9eebbccdd9eeffcgdhhfffgggghh|.2...............1.........................5..........................1..2.....34|421213432135452151242313434131425121242534353313421212242153434135341512421253434","001123344051123664557222666557889999aa788bbbbcaad8eeffccaddeeffccddggehhiiiggghhh|.............5........2......................4.............3......2.....2.....1.2|213132313352451542213124231342453142251314231434525142121313231354245454213132132","0012223330014456378814456678819456678a99b55c7aa99bccccaaddbefffggddeeffhgggdeehhh|4....................4....4.4................1.................2............1..41|414123234232351412151423234243515151351234243123415312341524243253435152341212341","01123334401122355406127755406687775496688abbb99988aaccdddeeeaccddfgeehhcfffgggghh|........5......1........3...............5..................5............2..3.....|131313435424242124315135351243424142352153231214321454432145232154523141231314232","00112233300011223344555566784499a6678849baa67c88bbaa77cccbbddefgghhddeefgghhheeff|.......5..2...4.2..........4.........1......5..................1.......2...3.....|131412154425234323313412541425234323314151515452323242231414131142523252231341434","001112222000312444556377748666377999aa633bc9deaafbbccdeeffbbccdgffhiiijjggghhhhjj|...1......3................4...................................4.............5...|212132431534545124121312431435453124212124531343431242212125313453431242312125313","00122333304112225304666755544667788894aa778bb99acccbbb99adcceeefffdgggeeffddgghhh|....5.1..1......................5....................4......5.......4....3.......|232454132151313245424524132313135241242421353153534214341421532125354241431213132","00011222300111422355666444355566478399aabb78399aabcc889daebccc8ddeeffgggddeefffgg|......5..1.......55......1.........3.3.5........................24.4...5...3.....|523231524145142435532353512241414243132523151254345232431213141124545235451323141","0012222330114425530114666557788996a5777899baaccc89bbdacceefbbddggeeffhddggeffhhhh|3..............4............2.................2.......3.......1....5......3....1.|312542121254313453431242121124315343435242121524135453315242321424151543313234312","011222333014425563004427566807777596888a999968bbaaccccdbbaeeecfdgggheeffddgghhhhf|5.......2....................................................2.4.........3..4....|531253432424312151131245323424312451135243124241315431132423124451315431234243252","0111112330455662230455662780995a6778b99aa7788bbccaadd8bbccceddfgghhheedfggghheeff|...1....1..........................1.............4....5................32..2.5...|252134131313425242425131353134254241421313152135242434524313121131542453254235124","00001112233044155263444555763388997766a88997bc6ade9fbbccadeefbbcgadeefhhggaddffhh|.2.1......................15........1..............5.......1..........3..........|425131212513424543325131321543242543125131325343424543212131212434545434121323121","01122334400522344400553366677758866977a588b99caaabbbb9ccaddeeefcggdddeefgghhhhhff|...3.....1..............41..3........2..........................3........45.4....|521314212135423534242151412135323534421414121353232543414141321232325454145143232","011122233011425333064445577666455877699aa887b99caaa8bbddccce8bbddcfeeggghhfffeegg|......14.................3.1.........................2......2...4..........2...1.|232143143154325251321543432143212151521434343343521512212143245345351532121242414","001112233000142235666447775688497a5588b499a5c8bbdd9aacebbfd9agceeffhhggceeffhhggc|....................................4.......5........1.1...............4.5.2.....|212341232435123415214351232352124541413453135352124241414531352323142414154231323","000111233001122223445555566444788669aa7788699abbbc8dd9abbcccdd9eefffggdheeefggghh|1.5.2..3.............................1......1..............4...2.....5...........|145425131323134252414251313235342525412153431253421254312134312243421543315134212","000112222001133332445166637455886977aa5886997aa5bbc9d7eeebccdddfeeccgghdffffgghhh|.5..5...1...................................3.........4..................1...2...|251454231432323545214141212352323454141415123323232341415151523323434341415212123","0011122330011422235044446635555776889999a7688b9caaa68dbccccadddbbeefffgdbeeeffggg|..3..1..4...........1..............1..................1.1...5.......4....3..5....|213151434352423251241354132135423241421351535354243424121351513545424342232151213","001122333001112435667782445667882955abb88995cabbdd99ccaedddffcceeggfffhieggghhhhi|...4....................1.2....4.................5...1.................2.....1...|232421312141534245323215132141543241232321535141453421323212134414535452323141231","00011223344512263344517263845517768895aa77b8899acddbbe99cccddeeffcggdhhefffgghhhe|........3.424...5......5..........5.2..............1...4......1....3.....1...5..5|213131313542424252213515343354232152213154341352432123143154541252431232413125415","0012333440012253440611557746681955aa888999aaab8cc9deefbcccddeefbgggdhhefbbggdhhff|.5.....1.........5........3........45........4.....5...................13.1......|353241212214135345432521213214134354532521213414343542525152135143243421321512134","000012233441112223445516663477555689a77bcc689aaabbb88deeafbggddehhffggddhhhffiiii|.......4....................1.................5..............5..........4........|341214143153453251242124132313453241242121532153534214324121352153534213421421342","001123333401125536477125566477829566448889aaabbc8d99aebbccdd9eefffccddeeffgggghhh|......1....5.....43......5..........1......................5....4................|323424153415135324323242151541515423123242314345131423212425351345314142121423231","001111223004455233644455237666859937a68888997aabbcccddabbefcddgaheeffiighheeffiig|...1..1........................2........1........................................|424132132135245451241313232135424141242315323151424141323513232414245141323132323","000122233004112563744155566744859aa677b8899aacbbb8d99acccb8dddeffggghdeefffgghhhe|.........4.................4.............3............4....4...2...............1.|321214321453432143312154321454321543212143212354321543412154321235432543541214312","0001122330011422556666442556788844997788abbb97caaabbd9ecccafdddeegcfffdheeggfhhhh|.2....32.....3.................4.................1....5......4.2................3|321212321543434143315252521423141434315253251424314132531525241242414352131325143","01112223300142256307145556377448566679a88bbcc99a88bbcc9aaddddce9afdghhhefffggghhe|.....3..4........................................5.............3.....5.24........|414323134232145451145323132232415241141324353252451242143124313352531542413124231","0000011223344111225344466275589996775a88996775aa88bcccdaaebbbcfddeegggffddeehggff|.1.4.5..........534.......23..................................5..........4.....2.|513425412325131253413424342352135151143424243252151312313434245252525131141313424","001223344001223344501267777555866999aa8866b99aac88bbddccccebbfdgghheeiffgghheeiff|.3..1...3...5...................................................3....2...........|232414123141532341253214123341432341125254525343132313152451452231323231142414142","000011233440112235446672255846679955888a799bbc8aa7dbbbcceadddffceeghhdffceegghhhf|5.....51....................................2.................454......2.....2...|521313512434242434121313121454242453213131312452425453231313214545245452123132313","01112233400122534400162555466667885499777888a99bb7cdda9bbbccddaeeefccgaaeeffffggg|.........3.4..............5.........15...5...............................2.5...2.|412545313354121242123534535341212121153545434342121212253454343341232151523514324","00112234400122233455167738855666788895aa677bb99aaacddb9efffcdgbeeefccdggehhhhcdgg|...........1...1....3..........................5..............3.2......2.......3.|132423231241514142153425351241534243132421312245134254313421313425135452313242134","0011112230041552330644557736688597aa668889aaabbbbc99defbgccccdeffgghhhdeffgghhdde|.2..2........4...........3...............1............5........3.1.....4........3|324321313151545242432313131214524242452131513314542342523235151341412424125235313","000001112333456112774456662774859992a74888b99aaac8bbbdefaccbggdefcchgggdeffhhhhdd|.4.................5.4..3.....................4.............3..........4........1|543214131321532524153414313242525242131314313542425242213131315345254524123432131","011222223001145533607445533667448899677ab88996aaabbcccddeabffccdeegbffhhdeeggghhh|.....5..1..................1.......2.........................4.1.......52........|421245131134313424421252153153434342342121213253434352341212141153454325242132143","000122333044122553444625577899665a7788966aaab88ccddabbecccddfbbeeggghfffeegghhhhf|1.......4................3............1.....4...........2.....135.1..............|124241314353135252214524134532313521141424134235313252412424131353153245212424513","001122223001112433506677443556667489aaaab7889accbb8899dccbeef9gddhheeffgddhhheffg|...5...............5..............5.........2.......5.........13.14...4......5...|134541232421235414153412323321254151145313232231424154142313231351424142242535353","000112333004112223444452667888556667885599977aabbb99ccaabbdecccffdddeeggfffdeeggg|1.......1...........2......5.......2..2.............5.2.5......3.......2....4..4.|124232321535141454412353231534141452212353234434121451215343234342151512215342345","0011223340051223340651778346655778846695ab884cc9aabbddce9aafbbdee99ffgggeehhhffgg|.4.....5..1.....4..................22..................4......3.......5..........|342414153515323241234141535512323212245141434132325212241514343353425251212131343","0001111223344522263344557663899577668899aa77b8c9aabbbbdcccceeeeddffffgheddfgggghh|..............................1.....................5.2.................3...2.3..|132324141241415323153232141324145352413521241352434352243121243152534515341421323","000111222003314452663314455667388495a67788995aab77c99daebbccdddeebffcggdeebfffggg|.5.5....1.............2...3.........15...............................1..31..23..5|154543431231315152142424343231531251152424342241351213352423542243154131315423245","0001112220031144425533664475588667779988aaab79c8ddaabbcceddffbbceegfffhhceegggghh|.......415.................3.3...........3..........5.........11.4..........3..3.|321234341543512152121243434343512521121243143354315252421243431154512524323234131","011112234000122234555667733556667783999aa788b99ccaa8bbddccca8ebfddggeeehffffggghh|.....4.4.1...................1..2.....3.......4.........................1........|353424141142135252253541313141232542253454313142121242235343531541212142123434531","000011122033311222443355556447775866497aa888699aaabb86c99ddbbbeccffdggeecfffdggee|1.5..2....4......2.........4.2.1.....5......2..........2......5.............1....|135452141242134352353525143412413251253525432414131214323245435141532121232414343","001112333001122433555666447859964477859aabcc7899aabbcc8ddeebfgcdddeeefgghhhhhffgg|........4...5.........4.........5.2............................4...........1...5.|241341514132523232241341414132525323254141451413232323325414141413235323325142451","00112334400012333455662277455662778895a6bb7889aaabcc8d9eabbccdd9eeffcggdeefffgggd|....5..1..1......3...........2.....................1..3...........3....5.5...4...|343151312215232453434141314212325452454513231212324142345453531121312125354254534","011123444001223344005223366755588966777a8896b7caa899bbccddd9bbeccddfffeegggggffee|5...4.51....1....3................2..4.....4..................5.42.....2......5..|514242514323131323414525451232143123145352541321214323153452545342134132213452541","011122334001122334500627734556687779556688999abb88cc9dabbbeccddafffeeggdaaffegggd|4.3....1...21.....3...........1......5....1....................2......52.32......|453451213212134542353521231414143545253252123414134345532521213241343452132512134","001122223001112333045556663445576688477779988aabcc99ddaabbccddeafbgchdeeffgghhhee|.........4.......5........1.......4.4.......1.........3..............5.2.........|214142512432353435514121521323534343454212121213534343352121215414343532232121414","001123334011222334015526664777886699a7788bb99aaa8ccb9deafffcbbdeffgghhddeeggghhhd|.4...............13.....3..5.................1................43....2.....2.1....|142415132253534241312121353543434241321215132154532451421241324353532453212415312","0011222330411122334455677884455667789aaa667b89aaccddd89ecccddffeeggghhhfeeggiihhf|1...........4...2.......1....4....34................4..3........41.....42...1....|132324141245415323532324151214153234353241512141532343232415121141534354252412123","00111223300144223354446677855996678855999a788bbbccaaddebbccadddeeffffgggeefhhhhgg|...........................5............4...2.4.......1........4..2...4.....3....|232434321141512143323434321545212154121343432345212154121434321453251543324134212","00112222300111425367788455367789445a6678994aabbc99ddaabeccddfggbecchhfggeeehhhffg|....2.............2..................................4...5.....1.....3...2......4|232124152414535343232142121454353435131212121424343434351512121143235353321412424","00122334401122334401556777781556697a88bb6c9aa88bbcc99adeeeccf9addeggffhhddgggfhhh|.....4...2........................................5..1.............2..5.1..4.....|143434341251212123343435341121212125434343434252125251314341432252123251143451432","001122233001425533064477583664477588699aa758bc99aadbbbce9ffdddbceefggdhhceefggghh|.5..3...5........2...4..............................3......................1..1..|152134145343525232212434141343152323215231414434145235212323141345454232123123141","00012223304411122355441666355748869957788aa99bb778aaccbbbdddcceffgddhheeffggghhhe|.......1.........4.........1.................5............4.....2..........4.....|234321313152145454234323212152141434434323212525151434143243212321515434143423121","00011223340011123344555623745586677749888667a9998bbaaacdddbbaeecddfbghhhffffggghh|.1...4..2.......5...................5..5..5...............2............5..4......|412424142353135353424521212131343435542512512231434345142525121231313435154242121","00011122233004112533644472586664977588a69977b8aacc99bbdaacefffbddgceefhhddggeefhh|.1...2..........2.1.................2......1...5...............2..............21.|415432341323215123141543451352321232241453514135324232542153141213424532342131214","0111223450012224456077784456669888a569998bbaac9dddbbeacccdfffeecgghhffeeggghhiiii|...........3.................................................5...3.......1.1.....|141232132323415454141232123523414341415252123234134341415251253323434312415121243","001111223004455623044455623778896663a7889bbbca7789dbccaaee9ddccafeggddhhffeggghhh|1........5.............................................1...............5........3|121234341534512523412343414234121232412343415254515232313234141524512325131234143","001123334001222334501627884556677889a56b77899aacbbdd99eacfbddggeecffhdggeccffhhhh|...1.....1.........................3.................5.35......................32|423132312154541453232325321141414143232323521141414145235323532414141214323525432","0011123330011422256677442556677889996aa88b99caaa8dbeeeffgddbbeeffgddhiiifgghhhhii|...1..........43....1..............2................4..........4.......4.....3..1|214131213432524352251431213143254542325132131413254542324131313453242524121513431","000011122333314425637784455677888455699a8bbcc6d9aabbcc6ddaaeeeeddffggehhfffggghhh|.....1............5........3................................5.4.........4....2.4.|413231232324545414513132323324245151413513242252424131141313524325254131413132542","0011223440015523440115526647885926aa7889996ba7cccd96bb7ecddddbb7ecffgggheeeffgghh|4.....1..........11......3............................4..........................|434525132252313241131424535242531212513145453324532121451215434123432151341214323","00112333300112244405552244655788866677788996abbcc99aaabbbc9ddaeffgcddheefgggdhhhe|.3......1....2....................2.......................................2.2....|134343241252121532414353414252142523143531315321242423145353514231414232142323141"]};
+
+// ---------- Datos de niveles ----------
+const ALPH = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const DIFFS = [
+  { k: 'principiante', name: 'Principiante', n: 5, tip: 'Deducciones directas', lv: 1 },
+  { k: 'facil', name: 'Fácil', n: 6, tip: 'Un solo lugar posible', lv: 2 },
+  { k: 'medio', name: 'Medio', n: 7, tip: 'Descartar por vecindad', lv: 3 },
+  { k: 'dificil', name: 'Difícil', n: 8, tip: 'Grupos de casillas vecinas', lv: 4 },
+  { k: 'experto', name: 'Experto', n: 9, tip: 'Cadenas largas de lógica', lv: 5 },
+];
+const DIFF = Object.fromEntries(DIFFS.map((d) => [d.k, d]));
+const TOTAL = (dk) => BANK[dk].length;
+const bit = (d) => 1 << d;
+const pop = (m) => { let c = 0; while (m) { c += m & 1; m >>= 1; } return c; };
+const low = (m) => { for (let d = 1; d <= 5; d++) if (m & bit(d)) return d; return 0; };
+const cache = {};
+
+function getLevel(dk, idx) {
+  const id = dk + ':' + idx;
+  if (cache[id]) return cache[id];
+  const n = DIFF[dk].n, N = n * n;
+  const [rs, ps, ss] = BANK[dk][idx].split('|');
+  const reg = [...rs].map((ch) => ALPH.indexOf(ch));
+  const puz = [...ps].map((ch) => (ch === '.' ? 0 : +ch));
+  const sol = [...ss].map(Number);
+  const nreg = Math.max(...reg) + 1;
+  const cells = Array.from({ length: nreg }, () => []);
+  reg.forEach((r, i) => cells[r].push(i));
+  const size = cells.map((c) => c.length);
+  const king = [];
+  for (let i = 0; i < N; i++) {
+    const r = (i / n) | 0, c = i % n, out = [];
+    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+      if (!dr && !dc) continue;
+      const a = r + dr, b = c + dc;
+      if (a >= 0 && b >= 0 && a < n && b < n) out.push(a * n + b);
+    }
+    king.push(out);
+  }
+  const count = [0, 0, 0, 0, 0, 0];
+  sol.forEach((d) => count[d]++);
+  const P = { dk, idx, id, n, N, reg, puz, sol, cells, size, king, nreg, count, maxSize: Math.max(...size) };
+  P.color = colorRegions(P);
+  return (cache[id] = P);
+}
+
+// Colorea los bloques para que dos bloques vecinos nunca compartan tinte.
+function colorRegions(P) {
+  const { n, reg, nreg } = P;
+  const adj = Array.from({ length: nreg }, () => new Set());
+  for (let i = 0; i < n * n; i++) {
+    const r = (i / n) | 0, c = i % n;
+    const nb = [];
+    if (c < n - 1) nb.push(i + 1);
+    if (r < n - 1) nb.push(i + n);
+    if (c < n - 1 && r < n - 1) nb.push(i + n + 1);
+    if (c > 0 && r < n - 1) nb.push(i + n - 1);
+    for (const j of nb) if (reg[j] !== reg[i]) { adj[reg[i]].add(reg[j]); adj[reg[j]].add(reg[i]); }
+  }
+  const K = 6, col = new Array(nreg).fill(-1), used = new Array(K).fill(0);
+  const order = [...Array(nreg).keys()].sort((a, b) => adj[b].size - adj[a].size);
+  const rec = (k) => {
+    if (k === order.length) return true;
+    const r = order[k];
+    const opts = [...Array(K).keys()].filter((c) => ![...adj[r]].some((o) => col[o] === c)).sort((a, b) => used[a] - used[b] || ((a + r) % K) - ((b + r) % K));
+    for (const c of opts) { col[r] = c; used[c]++; if (rec(k + 1)) return true; col[r] = -1; used[c]--; }
+    return false;
+  };
+  if (!rec(0)) for (let r = 0; r < nreg; r++) if (col[r] < 0) col[r] = r % K;
+  return col;
+}
+
+// ---------- Almacenamiento ----------
+const KEY = 'suguru.v1';
+const defaults = () => ({ settings: { theme: 'auto', conflicts: true, instant: false, autoNotes: true, zone: true, colors: true }, done: {}, saves: {}, last: null });
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && s.settings) { const d = defaults(); return Object.assign(d, s, { settings: Object.assign(d.settings, s.settings) }); }
+  } catch (e) { /* sin almacenamiento */ }
+  return defaults();
+}
+let store = load();
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) { /* sin almacenamiento */ } }
+const isDone = (dk, idx) => !!(store.done[dk] && store.done[dk][idx]);
+const doneCount = (dk) => (store.done[dk] ? Object.keys(store.done[dk]).length : 0);
+const fmt = (s) => { const m = Math.floor(s / 60), ss = s % 60; return (m < 10 ? '0' : '') + m + ':' + (ss < 10 ? '0' : '') + ss; };
+
+// ---------- Tema ----------
+const root = document.documentElement;
+const hostTheme = root.getAttribute('data-theme');
+function applyTheme() {
+  const t = store.settings.theme;
+  if (t === 'auto') { if (hostTheme) root.setAttribute('data-theme', hostTheme); else root.removeAttribute('data-theme'); }
+  else root.setAttribute('data-theme', t);
+  syncBarColor();
+}
+function syncBarColor() {
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
+}
+try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncBarColor); } catch (e) { /* navegador antiguo */ }
+
+// ---------- Dibujo de tableros ----------
+const $ = (id) => document.getElementById(id);
+const SVGNS = 'http://www.w3.org/2000/svg';
+function buildBoard(el, P, opts) {
+  opts = opts || {};
+  el.innerHTML = '';
+  el.style.setProperty('--n', P.n);
+  el.classList.toggle('plain', !store.settings.colors && !opts.forceColor);
+  const grid = document.createElement('div');
+  grid.className = 'cells';
+  const cells = [];
+  for (let i = 0; i < P.N; i++) {
+    const c = document.createElement('div');
+    c.className = 'cell';
+    c.dataset.i = i;
+    c.style.setProperty('--tint', 'var(--t' + P.color[P.reg[i]] + ')');
+    c.style.setProperty('--d', ((i / P.n) | 0) + (i % P.n));
+    if (!opts.mini) c.setAttribute('role', 'gridcell');
+    const v = document.createElement('span'); v.className = 'v'; c.appendChild(v);
+    if (!opts.mini) {
+      const nt = document.createElement('span'); nt.className = 'nt';
+      for (let d = 1; d <= 5; d++) { const s = document.createElement('span'); nt.appendChild(s); }
+      c.appendChild(nt);
+    }
+    grid.appendChild(c); cells.push(c);
+  }
+  el.appendChild(grid);
+  const svg = document.createElementNS(SVGNS, 'svg');
+  svg.setAttribute('class', 'grid-lines');
+  svg.setAttribute('viewBox', '0 0 ' + P.n + ' ' + P.n);
+  svg.setAttribute('preserveAspectRatio', 'none');
+  const thinW = opts.mini ? 0.5 : 1, thickW = opts.mini ? 1.4 : 2.6;
+  let thin = '', thick = '';
+  const n = P.n;
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    const i = r * n + c;
+    if (c < n - 1) { const seg = 'M' + (c + 1) + ' ' + r + 'V' + (r + 1); if (P.reg[i] !== P.reg[i + 1]) thick += seg; else thin += seg; }
+    if (r < n - 1) { const seg = 'M' + c + ' ' + (r + 1) + 'H' + (c + 1); if (P.reg[i] !== P.reg[i + n]) thick += seg; else thin += seg; }
+  }
+  const p1 = document.createElementNS(SVGNS, 'path');
+  p1.setAttribute('d', thin); p1.setAttribute('class', 'thin'); p1.setAttribute('stroke-width', thinW);
+  p1.setAttribute('vector-effect', 'non-scaling-stroke'); p1.setAttribute('fill', 'none');
+  const p2 = document.createElementNS(SVGNS, 'path');
+  p2.setAttribute('d', thick); p2.setAttribute('class', 'thick'); p2.setAttribute('stroke-width', thickW);
+  p2.setAttribute('vector-effect', 'non-scaling-stroke'); p2.setAttribute('fill', 'none'); p2.setAttribute('stroke-linecap', 'square');
+  svg.appendChild(p1); svg.appendChild(p2);
+  el.appendChild(svg);
+  return cells;
+}
+function fillMini(cells, P, vals) {
+  for (let i = 0; i < P.N; i++) {
+    cells[i].firstChild.textContent = vals[i] || '';
+    cells[i].classList.toggle('given', !!P.puz[i]);
+  }
+}
+
+// ---------- Vistas ----------
+const ORDER = ['home', 'levels', 'game'];
+let curView = 'home';
+function show(v) {
+  curView = v;
+  const k = ORDER.indexOf(v);
+  ORDER.forEach((name, j) => {
+    const el = $('v-' + name);
+    el.classList.toggle('on', j === k);
+    el.classList.toggle('left', j < k);
+    el.setAttribute('aria-hidden', j === k ? 'false' : 'true');
+  });
+  if (v !== 'game') closeHint(true);
+}
+document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => { if (b.dataset.go === 'home') renderHome(); show(b.dataset.go); }));
+
+// ---------- Inicio ----------
+function nextUndone(dk, after) {
+  const T = TOTAL(dk);
+  for (let k = 1; k <= T; k++) { const j = (after + k) % T; if (!isDone(dk, j)) return j; }
+  return (after + 1) % T;
+}
+function resumeTarget() {
+  if (store.last && store.saves[store.last]) { const [dk, s] = store.last.split(':'); return { dk, idx: +s, cont: true }; }
+  if (store.last) { const [dk, s] = store.last.split(':'); return { dk, idx: nextUndone(dk, +s), cont: false }; }
+  return { dk: 'principiante', idx: nextUndone('principiante', -1), cont: false };
+}
+let resumeCells = null;
+function renderHome() {
+  const t = resumeTarget();
+  const P = getLevel(t.dk, t.idx);
+  resumeCells = buildBoard($('resume-board'), P, { mini: true });
+  const sv = store.saves[P.id];
+  fillMini(resumeCells, P, sv ? [...sv.v].map(Number) : P.puz);
+  $('resume-eyebrow').textContent = t.cont ? 'Continuar' : (store.last ? 'Siguiente' : 'Empieza aquí');
+  $('resume-title').textContent = DIFF[t.dk].name + ' · Nivel ' + (t.idx + 1);
+  $('resume-meta').textContent = P.n + '×' + P.n + (sv ? ' · ' + fmt(sv.t) + ' jugados' : ' · ' + DIFF[t.dk].tip.toLowerCase());
+  $('resume').onclick = () => openGame(t.dk, t.idx);
+  const box = $('diffs');
+  box.innerHTML = '';
+  for (const d of DIFFS) {
+    const b = document.createElement('button');
+    b.className = 'diff';
+    const dots = Array.from({ length: 5 }, (_, j) => '<i class="' + (j < d.lv ? 'f' : '') + '"></i>').join('');
+    b.innerHTML = '<div><b>' + d.name + '</b><div class="sub">' + d.n + '×' + d.n + ' · ' + d.tip + '</div></div>' +
+      '<div class="side"><span class="dots" aria-label="Dificultad ' + d.lv + ' de 5">' + dots + '</span><span class="count">' + doneCount(d.k) + ' / ' + TOTAL(d.k) + '</span></div>' +
+      '<svg class="i" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>';
+    b.addEventListener('click', () => openLevels(d.k));
+    box.appendChild(b);
+  }
+}
+
+// ---------- Niveles ----------
+let lvDk = 'principiante';
+function openLevels(dk) { lvDk = dk; renderLevels(); show('levels'); $('v-levels').querySelector('.scroll').scrollTop = 0; }
+function renderLevels() {
+  const d = DIFF[lvDk], T = TOTAL(lvDk);
+  $('lv-title').textContent = d.name;
+  $('lv-sub').textContent = d.n + '×' + d.n + ' · ' + d.tip;
+  $('lv-done').textContent = doneCount(lvDk) + ' / ' + T;
+  const nx = nextUndone(lvDk, -1);
+  const allDone = doneCount(lvDk) >= T;
+  $('lv-next').textContent = allDone ? 'Repetir nivel 1' : (store.saves[lvDk + ':' + nx] ? 'Seguir nivel ' : 'Jugar nivel ') + (nx + 1);
+  $('lv-next').onclick = () => openGame(lvDk, allDone ? 0 : nx);
+  const grid = $('lv-grid');
+  grid.innerHTML = '';
+  for (let j = 0; j < T; j++) {
+    const b = document.createElement('button');
+    const rec = store.done[lvDk] && store.done[lvDk][j];
+    b.className = 'tile' + (rec ? ' done' : '') + (store.saves[lvDk + ':' + j] ? ' started' : '') + (!allDone && j === nx ? ' next' : '');
+    b.setAttribute('aria-label', 'Nivel ' + (j + 1) + (rec ? ', resuelto en ' + fmt(rec.t) : ''));
+    b.innerHTML = '<span class="num">' + (j + 1) + '</span>' + (rec ? '<span class="tm">' + fmt(rec.t) + '</span><svg class="i ok" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' : '');
+    b.addEventListener('click', () => openGame(lvDk, j));
+    grid.appendChild(b);
+  }
+}
+
+// ---------- Juego ----------
+let game = null, cellsEl = [];
+const boardEl = $('board');
+function openGame(dk, idx) {
+  const P = getLevel(dk, idx);
+  const sv = store.saves[P.id];
+  game = { P, vals: P.puz.slice(), notes: new Array(P.N).fill(0), time: 0, hints: 0, undo: [], sel: -1, notesMode: false, done: false, paused: false, hint: null, flashWrong: false };
+  if (sv) {
+    [...sv.v].forEach((ch, i) => { if (!P.puz[i]) game.vals[i] = +ch; });
+    if (sv.nt) sv.nt.forEach((m, i) => { game.notes[i] = m | 0; });
+    game.time = sv.t | 0; game.hints = sv.h | 0;
+  }
+  game.sel = game.vals.findIndex((v) => !v);
+  store.last = P.id; persist();
+  lvDk = dk;
+  boardEl.classList.remove('won');
+  cellsEl = buildBoard(boardEl, P, {});
+  $('g-title').textContent = 'Nivel ' + (idx + 1);
+  $('g-sub').textContent = DIFF[dk].name + ' · ' + P.n + '×' + P.n;
+  buildPad();
+  setNotes(false);
+  closeHint(true);
+  renderTimer(); update();
+  closeSheet('s-win');
+  show('game');
+}
+function saveGame() {
+  if (!game || game.done) return;
+  const P = game.P;
+  const touched = game.vals.some((v, i) => v && !P.puz[i]) || game.notes.some((m) => m) || game.time > 0;
+  if (!touched) return;
+  store.saves[P.id] = { v: game.vals.join(''), nt: game.notes.some((m) => m) ? game.notes : undefined, t: game.time, h: game.hints };
+  store.last = P.id;
+  persist();
+}
+
+function buildPad() {
+  const pad = $('pad');
+  pad.innerHTML = '';
+  for (let d = 1; d <= 5; d++) {
+    const b = document.createElement('button');
+    b.className = 'key'; b.dataset.d = d;
+    b.innerHTML = d + '<small></small>';
+    b.addEventListener('click', () => input(d));
+    pad.appendChild(b);
+  }
+}
+
+function conflicts() {
+  const P = game.P, v = game.vals, bad = new Set();
+  for (let i = 0; i < P.N; i++) if (v[i]) {
+    for (const j of P.king[i]) if (v[j] === v[i]) { bad.add(i); bad.add(j); }
+    for (const j of P.cells[P.reg[i]]) if (j !== i && v[j] === v[i]) { bad.add(i); bad.add(j); }
+  }
+  return bad;
+}
+
+function update() {
+  if (!game) return;
+  const P = game.P, s = store.settings, sel = game.sel;
+  const bad = s.conflicts ? conflicts() : new Set();
+  const zone = new Set();
+  if (sel >= 0 && s.zone && !game.done) { for (const j of P.cells[P.reg[sel]]) zone.add(j); for (const j of P.king[sel]) zone.add(j); }
+  const selVal = sel >= 0 ? game.vals[sel] : 0;
+  const h = game.hint;
+  const harea = new Set();
+  if (h) {
+    if (h.type === 'hidden') P.cells[h.r].forEach((j) => harea.add(j));
+    if (h.type === 'naked') { P.cells[P.reg[h.i]].forEach((j) => harea.add(j)); P.king[h.i].forEach((j) => harea.add(j)); }
+  }
+  for (let i = 0; i < P.N; i++) {
+    const c = cellsEl[i], v = game.vals[i];
+    const wrong = v && !P.puz[i] && v !== P.sol[i] && (s.instant || game.flashWrong || (h && h.type === 'wrong' && h.i === i));
+    let cls = 'cell';
+    if (P.puz[i]) cls += ' given';
+    if (!game.done) {
+      if (h && harea.has(i)) cls += ' h-area';
+      else if (zone.has(i)) cls += ' zone';
+      if (selVal && v === selVal && i !== sel) cls += ' same';
+      if (i === sel) cls += ' sel';
+      if (bad.has(i)) cls += ' conflict';
+      if (wrong) cls += ' wrong';
+      if (h && h.i === i) cls += ' h-target' + (h.type === 'wrong' ? ' h-bad' : '');
+    }
+    if (c.className !== cls) c.className = cls;
+    const vEl = c.firstChild;
+    const txt = v ? String(v) : '';
+    if (vEl.textContent !== txt) vEl.textContent = txt;
+    const nt = c.lastChild, m = v ? 0 : game.notes[i];
+    if (nt.dataset.m !== String(m)) {
+      nt.dataset.m = m;
+      for (let d = 1; d <= 5; d++) nt.children[d - 1].textContent = m & bit(d) ? d : '';
+    }
+    c.setAttribute('aria-label', 'Fila ' + (((i / P.n) | 0) + 1) + ', columna ' + ((i % P.n) + 1) + ', bloque de ' + P.size[P.reg[i]] + (v ? ', ' + v : ', vacía'));
+  }
+  // teclado
+  const placed = [0, 0, 0, 0, 0, 0];
+  game.vals.forEach((v) => placed[v]++);
+  const selSize = sel >= 0 ? P.size[P.reg[sel]] : 5;
+  const keys = $('pad').children;
+  for (let d = 1; d <= 5; d++) {
+    const k = keys[d - 1];
+    const left = Math.max(0, P.count[d] - placed[d]);
+    k.querySelector('small').textContent = P.count[d] ? left : '';
+    k.classList.toggle('spent', left === 0);
+    k.disabled = d > P.maxSize || game.done || (sel >= 0 && !P.puz[sel] && d > selSize);
+  }
+  $('t-undo').disabled = !game.undo.length || game.done;
+  renderInfo();
+}
+const joinY = (a) => (a.length <= 1 ? a.join('') : a.slice(0, -1).join(', ') + ' y ' + a[a.length - 1]);
+function renderInfo() {
+  const el = $('cell-info'), P = game.P, i = game.sel;
+  const left = game.vals.filter((v) => !v).length;
+  if (game.done) { el.textContent = ''; return; }
+  if (i < 0) { el.innerHTML = 'Quedan <b>' + left + '</b> casillas'; return; }
+  const r = P.reg[i], sz = P.size[r];
+  const have = new Set(P.cells[r].map((j) => game.vals[j]).filter(Boolean));
+  const miss = [];
+  for (let d = 1; d <= sz; d++) if (!have.has(d)) miss.push(d);
+  let txt = 'Bloque de <b>' + sz + '</b> ' + (sz === 1 ? 'casilla' : 'casillas');
+  txt += miss.length === 1 ? ' · falta el <b>' + miss[0] + '</b>' : miss.length ? ' · faltan <b>' + joinY(miss) + '</b>' : ' · completo';
+  txt += ' · quedan <b>' + left + '</b>';
+  el.innerHTML = txt;
+}
+
+function select(i) {
+  if (!game || game.done || game.paused) return;
+  game.sel = i;
+  if (game.hint && game.hint.i !== i) closeHint();
+  update();
+}
+boardEl.addEventListener('pointerdown', (e) => {
+  const c = e.target.closest('.cell');
+  if (!c || !game) return;
+  select(+c.dataset.i);
+});
+
+function pushUndo(list) {
+  game.undo.push(list.map((j) => [j, game.vals[j], game.notes[j]]));
+  if (game.undo.length > 400) game.undo.shift();
+}
+function bump(i) {
+  const c = cellsEl[i]; if (!c) return;
+  c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+  setTimeout(() => c.classList.remove('shake'), 400);
+}
+function place(i, d) {
+  const P = game.P;
+  const affected = [i];
+  if (store.settings.autoNotes) {
+    const near = new Set(P.cells[P.reg[i]].concat(P.king[i]));
+    near.forEach((j) => { if (j !== i && game.notes[j] & bit(d)) affected.push(j); });
+  }
+  pushUndo(affected);
+  game.vals[i] = d; game.notes[i] = 0;
+  for (let k = 1; k < affected.length; k++) game.notes[affected[k]] &= ~bit(d);
+  if (store.settings.instant && d !== P.sol[i]) bump(i);
+}
+function input(d) {
+  if (!game || game.done || game.paused) return;
+  const i = game.sel, P = game.P;
+  if (i < 0) { toast('Elige una casilla primero'); return; }
+  if (P.puz[i]) { bump(i); return; }
+  if (d > P.size[P.reg[i]]) { bump(i); return; }
+  closeHint();
+  game.flashWrong = false;
+  if (game.notesMode) {
+    if (game.vals[i]) { toast('Borra el número para anotar'); return; }
+    pushUndo([i]);
+    game.notes[i] ^= bit(d);
+  } else if (game.vals[i] === d) {
+    pushUndo([i]);
+    game.vals[i] = 0;
+  } else {
+    place(i, d);
+  }
+  saveGame(); update(); checkFull();
+}
+function erase() {
+  if (!game || game.done || game.paused) return;
+  const i = game.sel;
+  if (i < 0 || game.P.puz[i] || (!game.vals[i] && !game.notes[i])) return;
+  closeHint();
+  pushUndo([i]);
+  game.vals[i] = 0; game.notes[i] = 0;
+  saveGame(); update();
+}
+function undo() {
+  if (!game || game.done || game.paused || !game.undo.length) return;
+  closeHint();
+  const list = game.undo.pop();
+  for (const [j, v, m] of list) { game.vals[j] = v; game.notes[j] = m; }
+  game.sel = list[0][0];
+  saveGame(); update();
+}
+function setNotes(on) {
+  if (!game) return;
+  game.notesMode = on;
+  $('t-notes').classList.toggle('on', on);
+  $('t-notes').setAttribute('aria-pressed', on);
+  $('notes-state').textContent = on ? 'Sí' : 'No';
+  $('pad').classList.toggle('notes', on);
+}
+function checkFull() {
+  const P = game.P;
+  if (game.vals.some((v) => !v)) return;
+  if (game.vals.every((v, i) => v === P.sol[i])) { win(); return; }
+  game.flashWrong = true;
+  update();
+  toast('El tablero está lleno, pero hay números que no van');
+}
+
+// ---------- Pistas ----------
+function candidates(P, vals) {
+  const cand = new Array(P.N).fill(0);
+  for (let i = 0; i < P.N; i++) if (!vals[i]) {
+    let m = (1 << (P.size[P.reg[i]] + 1)) - 2;
+    for (const j of P.cells[P.reg[i]]) if (vals[j]) m &= ~bit(vals[j]);
+    for (const j of P.king[i]) if (vals[j]) m &= ~bit(vals[j]);
+    cand[i] = m;
+  }
+  return cand;
+}
+function singles(P, vals, cand) {
+  const list = [];
+  for (let i = 0; i < P.N; i++) if (!vals[i] && pop(cand[i]) === 1) list.push({ type: 'naked', i, d: low(cand[i]) });
+  for (let r = 0; r < P.nreg; r++) {
+    const cs = P.cells[r];
+    for (let d = 1; d <= P.size[r]; d++) {
+      if (cs.some((j) => vals[j] === d)) continue;
+      const pos = cs.filter((j) => !vals[j] && cand[j] & bit(d));
+      if (pos.length === 1) list.push({ type: 'hidden', i: pos[0], d, r });
+    }
+  }
+  if (!list.length) return null;
+  const sel = game.sel;
+  return list.find((h) => h.i === sel) || list.find((h) => sel >= 0 && P.reg[h.i] === P.reg[sel]) || list.find((h) => h.type === 'hidden') || list[0];
+}
+function commonNeighbors(P, arr) {
+  const out = [];
+  for (const x of P.king[arr[0]]) {
+    if (arr.includes(x)) continue;
+    if (arr.every((a) => P.king[a].includes(x))) out.push(x);
+  }
+  return out;
+}
+let cliqueCache = null;
+function cliques(P) {
+  if (cliqueCache && cliqueCache.id === P.id) return cliqueCache.list;
+  const n = P.n, list = [];
+  for (let r = 0; r < n - 1; r++) for (let c = 0; c < n - 1; c++) {
+    const a = r * n + c, b = a + 1, d = a + n, e = d + 1;
+    list.push([a, b, d, e], [a, b, d], [a, b, e], [a, d, e], [b, d, e]);
+  }
+  for (let i = 0; i < P.N; i++) for (const j of P.king[i]) if (j > i) list.push([i, j]);
+  const withNb = list.map((cl) => ({ cl, nb: commonNeighbors(P, cl) }));
+  cliqueCache = { id: P.id, list: withNb };
+  return withNb;
+}
+function eliminate(P, vals, cand) {
+  let prog = false;
+  for (let r = 0; r < P.nreg; r++) {
+    const cs = P.cells[r];
+    for (let d = 1; d <= P.size[r]; d++) {
+      if (cs.some((j) => vals[j] === d)) continue;
+      const S = cs.filter((j) => !vals[j] && cand[j] & bit(d));
+      if (!S.length) continue;
+      for (const x of commonNeighbors(P, S)) if (P.reg[x] !== r && cand[x] & bit(d)) { cand[x] &= ~bit(d); prog = true; }
+    }
+    const un = cs.filter((j) => !vals[j]), k = un.length;
+    for (let mask = 1; mask < (1 << k) - 1; mask++) {
+      const sz = pop(mask);
+      if (sz < 2) continue;
+      let uni = 0;
+      for (let t = 0; t < k; t++) if (mask & (1 << t)) uni |= cand[un[t]];
+      if (pop(uni) === sz) for (let t = 0; t < k; t++) if (!(mask & (1 << t)) && cand[un[t]] & uni) { cand[un[t]] &= ~uni; prog = true; }
+    }
+  }
+  if (prog) return true;
+  for (const { cl, nb } of cliques(P)) {
+    if (cl.some((j) => vals[j])) continue;
+    let uni = 0;
+    for (const j of cl) uni |= cand[j];
+    if (pop(uni) === cl.length) for (const x of nb) if (!vals[x] && cand[x] & uni) { cand[x] &= ~uni; prog = true; }
+  }
+  return prog;
+}
+function findHint() {
+  const P = game.P, vals = game.vals;
+  const sel = game.sel;
+  if (sel >= 0 && vals[sel] && !P.puz[sel] && vals[sel] !== P.sol[sel]) return { type: 'wrong', i: sel };
+  for (let i = 0; i < P.N; i++) if (vals[i] && !P.puz[i] && vals[i] !== P.sol[i]) return { type: 'wrong', i };
+  const cand = candidates(P, vals);
+  let h = singles(P, vals, cand);
+  if (h && h.d === P.sol[h.i]) return h;
+  for (let g = 0; g < 300; g++) {
+    if (!eliminate(P, vals, cand)) break;
+    h = singles(P, vals, cand);
+    if (h && h.d === P.sol[h.i]) return { type: 'deep', i: h.i, d: h.d };
+  }
+  let bi = -1, bc = 9;
+  for (let i = 0; i < P.N; i++) if (!vals[i]) { const c = pop(cand[i]) || 9; if (c < bc) { bc = c; bi = i; } }
+  return { type: 'reveal', i: bi, d: P.sol[bi] };
+}
+function hint() {
+  if (!game || game.done || game.paused) return;
+  if (game.hint) return;
+  const h = findHint();
+  if (h.i < 0) return;
+  game.hint = h; game.sel = h.i; game.hints++;
+  const P = game.P;
+  let title = 'Pista', text = '', act = '';
+  if (h.type === 'wrong') {
+    title = 'Número equivocado';
+    text = 'El ' + game.vals[h.i] + ' marcado no corresponde a la solución. Bórralo y vuelve a mirar su bloque y sus vecinas.';
+    act = 'Borrar número';
+  } else if (h.type === 'naked') {
+    text = 'En la casilla marcada solo cabe el ' + h.d + '. Los demás números del 1 al ' + P.size[P.reg[h.i]] + ' ya están en su bloque o en alguna casilla que la toca.';
+    act = 'Colocar el ' + h.d;
+  } else if (h.type === 'hidden') {
+    text = 'En el bloque marcado falta el ' + h.d + ', y la única casilla donde puede ir sin tocar otro ' + h.d + ' es la del borde resaltado.';
+    act = 'Colocar el ' + h.d;
+  } else if (h.type === 'deep') {
+    text = 'Esta casilla ya se puede deducir. Mira dónde puede ir cada número que falta en los bloques vecinos: si todas sus opciones tocan esta casilla, ese número aquí no va.';
+    act = 'Mostrar número';
+  } else {
+    text = 'Este tablero pide una cadena larga de deducciones. Prueba un número en la casilla marcada y sigue sus consecuencias, o deja que la pista lo muestre.';
+    act = 'Mostrar número';
+  }
+  $('hint-title').textContent = title;
+  $('hint-text').textContent = text;
+  $('hint-act').textContent = act;
+  $('hint').classList.add('show');
+  saveGame(); update();
+}
+function hintAction() {
+  const h = game && game.hint;
+  if (!h) return;
+  if (h.type === 'wrong') {
+    pushUndo([h.i]); game.vals[h.i] = 0; game.notes[h.i] = 0;
+    closeHint(); saveGame(); update();
+  } else {
+    closeHint();
+    place(h.i, h.d);
+    saveGame(); update(); checkFull();
+  }
+}
+function closeHint(silent) {
+  $('hint').classList.remove('show');
+  if (game && game.hint) { game.hint = null; if (!silent) update(); }
+}
+$('hint-act').addEventListener('click', hintAction);
+$('hint-close').addEventListener('click', () => closeHint());
+
+// ---------- Tiempo, pausa y victoria ----------
+let sheetOpen = null;
+function renderTimer() { $('timer').textContent = game ? fmt(game.time) : '00:00'; }
+setInterval(() => {
+  if (game && !game.done && !game.paused && curView === 'game' && !sheetOpen && document.visibilityState === 'visible') {
+    game.time++; renderTimer();
+    if (game.time % 5 === 0) saveGame();
+  }
+}, 1000);
+function setPaused(p) {
+  if (!game || game.done) return;
+  game.paused = p;
+  let veil = boardEl.querySelector('.veil');
+  if (p && !veil) {
+    veil = document.createElement('div');
+    veil.className = 'veil';
+    veil.innerHTML = '<p>En pausa</p><button class="btn" type="button">Continuar</button>';
+    veil.querySelector('button').addEventListener('click', () => setPaused(false));
+    boardEl.appendChild(veil);
+  } else if (!p && veil) veil.remove();
+  $('btn-pause').innerHTML = p
+    ? '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke-width="1.4"/></svg>'
+    : '<svg class="i" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12" stroke-width="2.6"/></svg>';
+  $('btn-pause').setAttribute('aria-label', p ? 'Seguir jugando' : 'Pausa');
+  if (p) { closeHint(); saveGame(); }
+}
+$('btn-pause').addEventListener('click', () => setPaused(!(game && game.paused)));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && game && !game.done && curView === 'game') { saveGame(); if (game.time > 0) setPaused(true); }
+});
+$('g-back').addEventListener('click', () => { saveGame(); if (game && game.paused) setPaused(false); openLevels(game ? game.P.dk : lvDk); });
+
+function win() {
+  const P = game.P;
+  game.done = true; game.hint = null;
+  const rec = store.done[P.dk] || (store.done[P.dk] = {});
+  const prev = rec[P.idx];
+  const best = prev ? Math.min(prev.t, game.time) : game.time;
+  rec[P.idx] = { t: best, h: prev ? Math.min(prev.h, game.hints) : game.hints };
+  delete store.saves[P.id];
+  persist();
+  $('hint').classList.remove('show');
+  update();
+  boardEl.classList.add('won');
+  $('win-where').textContent = DIFF[P.dk].name + ' · Nivel ' + (P.idx + 1);
+  $('win-time').textContent = fmt(game.time);
+  $('win-best').textContent = fmt(best);
+  $('win-hints').textContent = game.hints;
+  $('win-badge').hidden = !(prev && game.time < prev.t);
+  const nx = nextUndone(P.dk, P.idx);
+  const allDone = doneCount(P.dk) >= TOTAL(P.dk);
+  $('win-next').textContent = 'Jugar nivel ' + ((allDone ? (P.idx + 1) % TOTAL(P.dk) : nx) + 1);
+  $('win-next').onclick = () => { closeSheet('s-win'); openGame(P.dk, allDone ? (P.idx + 1) % TOTAL(P.dk) : nx); };
+  $('win-levels').onclick = () => { closeSheet('s-win'); openLevels(P.dk); };
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(() => openSheet('s-win'), reduce ? 150 : (2 * P.n * 38 + 650));
+}
+
+// ---------- Hojas ----------
+function openSheet(id) {
+  const s = $(id);
+  s.classList.add('open'); s.setAttribute('aria-hidden', 'false');
+  sheetOpen = id;
+}
+function closeSheet(id) {
+  const s = $(id);
+  if (!s.classList.contains('open')) return;
+  s.classList.remove('open'); s.setAttribute('aria-hidden', 'true');
+  if (sheetOpen === id) sheetOpen = null;
+}
+document.querySelectorAll('.sheet [data-close]').forEach((el) => el.addEventListener('click', () => closeSheet(el.closest('.sheet').id)));
+
+function syncSettingsUI() {
+  const s = store.settings;
+  $('o-conflicts').checked = s.conflicts;
+  $('o-instant').checked = s.instant;
+  $('o-autonotes').checked = s.autoNotes;
+  $('o-zone').checked = s.zone;
+  $('o-colors').checked = s.colors;
+  document.querySelectorAll('[data-theme-opt]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.themeOpt === s.theme));
+}
+$('btn-settings').addEventListener('click', () => { syncSettingsUI(); $('reset-confirm').hidden = true; $('reset-ask').hidden = false; openSheet('s-settings'); });
+[['o-conflicts', 'conflicts'], ['o-instant', 'instant'], ['o-autonotes', 'autoNotes'], ['o-zone', 'zone'], ['o-colors', 'colors']].forEach(([id, key]) => {
+  $(id).addEventListener('change', (e) => {
+    store.settings[key] = e.target.checked; persist();
+    if (key === 'colors') { boardEl.classList.toggle('plain', !e.target.checked); if (curView === 'home') renderHome(); }
+    update();
+  });
+});
+document.querySelectorAll('[data-theme-opt]').forEach((b) => b.addEventListener('click', () => {
+  store.settings.theme = b.dataset.themeOpt; persist(); applyTheme(); syncSettingsUI();
+}));
+$('reset-ask').addEventListener('click', () => { $('reset-confirm').hidden = false; $('reset-ask').hidden = true; });
+$('reset-no').addEventListener('click', () => { $('reset-confirm').hidden = true; $('reset-ask').hidden = false; });
+$('reset-yes').addEventListener('click', () => {
+  const keep = store.settings;
+  store = defaults(); store.settings = keep; persist();
+  game = null; closeSheet('s-settings'); renderHome(); show('home');
+  toast('Progreso borrado');
+});
+let demoBuilt = false;
+$('btn-rules').addEventListener('click', () => {
+  if (!demoBuilt) {
+    const P = getLevel('principiante', 0);
+    const cells = buildBoard($('demo-board'), P, { forceColor: true });
+    fillMini(cells, P, P.sol);
+    demoBuilt = true;
+  }
+  openSheet('s-rules');
+});
+
+let toastTimer = 0;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ---------- Controles ----------
+$('t-undo').addEventListener('click', undo);
+$('t-erase').addEventListener('click', erase);
+$('t-notes').addEventListener('click', () => setNotes(!game.notesMode));
+$('t-hint').addEventListener('click', hint);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { if (sheetOpen && sheetOpen !== 's-win') closeSheet(sheetOpen); else closeHint(); return; }
+  if (curView !== 'game' || !game || sheetOpen) return;
+  if (e.metaKey || e.ctrlKey) { if (e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); } return; }
+  const n = game.P.n;
+  if (/^[1-5]$/.test(e.key)) { input(+e.key); e.preventDefault(); }
+  else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') { erase(); e.preventDefault(); }
+  else if (e.key === 'n' || e.key === 'N') setNotes(!game.notesMode);
+  else if (e.key === 'p' || e.key === 'P') setPaused(!game.paused);
+  else if (e.key.startsWith('Arrow')) {
+    e.preventDefault();
+    let i = game.sel < 0 ? 0 : game.sel, r = (i / n) | 0, c = i % n;
+    if (e.key === 'ArrowUp') r = (r + n - 1) % n;
+    if (e.key === 'ArrowDown') r = (r + 1) % n;
+    if (e.key === 'ArrowLeft') c = (c + n - 1) % n;
+    if (e.key === 'ArrowRight') c = (c + 1) % n;
+    select(r * n + c);
+  }
+});
+
+// ---------- Arranque ----------
+function start(data) {
+  applyTheme();
+  renderHome();
+  if (data && data.view === 'game' && data.id) {
+    const [dk, s] = data.id.split(':');
+    if (BANK[dk] && BANK[dk][+s]) { openGame(dk, +s); if (data.sel >= 0 && game) { game.sel = data.sel; update(); } return; }
+  }
+  if (data && data.view === 'levels' && data.lvDk && BANK[data.lvDk]) { openLevels(data.lvDk); return; }
+  show('home');
+}
+window.claude?.hot?.snapshot?.(() => { saveGame(); return { view: curView, id: game && !game.done ? game.P.id : null, sel: game ? game.sel : -1, lvDk }; });
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>
